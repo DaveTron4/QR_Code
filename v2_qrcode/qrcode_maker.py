@@ -1,0 +1,5 @@
+import qrcode
+import PIL
+
+
+
