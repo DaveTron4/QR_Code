@@ -2,4 +2,3 @@ import qrcode
 import PIL
 
 
-
