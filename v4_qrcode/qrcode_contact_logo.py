@@ -24,7 +24,7 @@ if __name__ == "__main__":
     vcard.tel.type_param = "MOBILE"
 
     # Email
-    vcard.add("tel")
+    vcard.add("email")
     vcard.tel.value = "example@gmail.com"
     vcard.tel.type_param = "INTERNET"
 
