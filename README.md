@@ -28,13 +28,14 @@ The project depends on several Python libraries, which can be installed via `pip
 pip install -r requirements.txt
 ```
 
-# QR Code Generator with vCard Integration
-
 ## Requirements
 
 `requirements.txt` should contain:
 ```bash
-Flask==2.0.3 Pillow==8.4.0 qrcode==7.3.1 vobject==0.9.6.1
+Flask==2.0.3
+Pillow==8.4.0
+qrcode==7.3.1
+vobject==0.9.6.1
 ```
 ## Installation
 
@@ -82,9 +83,37 @@ Flask==2.0.3 Pillow==8.4.0 qrcode==7.3.1 vobject==0.9.6.1
 /qr-code-generator
     /static
         /output        # Folder where generated QR codes are stored
+        style.css
     /templates
         index.html     # HTML template for the QR code generator page
     app.py             # Main Flask application file
     vcard_generator.py # Module for generating the vCard QR code
     requirements.txt  # Required dependencies
     README.md         # Project documentation
+```
+
+## Code Breakdown
+
+### `app.py`
+- **Main Flask Application**: Handles the web routes and logic for generating and serving the QR codes.
+- **Routes**:
+    - `/`: Displays the QR code generation form and handles form submissions.
+    - `/download_qr/<filename>`: Allows users to download their generated QR code.
+
+### `vcard_generator.py`
+- **QR Code Generation**: Converts user input into a vCard format and generates a QR code using the `qrcode` library.
+- **Image Embedding**: Supports embedding custom images in the QR code, with the option to round the corners of the image.
+
+### Automatic Cleanup (Scheduled Task)
+A cleanup task runs in the background to automatically delete QR code files that are older than 24 hours to free up space on the server.
+
+## How to Delete QR Codes
+
+- **Automatic Deletion**: QR codes are automatically deleted after 24 hours of being created.
+- **Manual Deletion**: You can manually delete the generated QR codes from the `static/output` folder if necessary.
+
+## Contributing
+Feel free to fork the project, create a branch, and submit pull requests for any improvements or bug fixes. Contributions are always welcome!
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
