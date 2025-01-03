@@ -1,0 +1,4 @@
+Flask==2.0.3
+Pillow==8.4.0
+qrcode==7.3.1
+vobject==0.9.6.1

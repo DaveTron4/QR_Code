@@ -42,7 +42,7 @@ vobject==0.9.6.1
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/qr-code-generator.git
+    git clone https://github.com/DaveTron4/QR_Code
     cd qr-code-generator
     ```
 
