@@ -8,19 +8,36 @@
 </head>
 <body>
     <h1>vCard QR Code Generator</h1>
-    <form method="POST">
-        <label for="name">Full Name:</label>
-        <input type="text" id="name" name="name" required>
-        <label for="phone">Phone Number:</label>
-        <input type="tel" id="phone" name="phone" pattern="\d{10}" required>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
+    <form method="POST" enctype="multipart/form-data">
+        <div>
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" placeholder="John Doe" required>
+        </div>
+        <div>
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" pattern="\d{10}" placeholder="1234567890" required
+                   oninvalid="this.setCustomValidity('Please enter a valid 10-digit phone number.')"
+                   oninput="this.setCustomValidity('')">
+        </div>
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="example@example.com" required>
+        </div>
+        <div>
+            <label for="image">Upload Image (optional):</label>
+            <input type="file" id="image" name="image" accept="image/*">
+        </div>
         <button type="submit">Generate QR Code</button>
-    </form>
+    </form>    
 
     {% if qr_code_url %}
     <h2>Your QR Code:</h2>
-    <img src="{{ qr_code_url }}" alt="Generated QR Code">
+    <img id="qr-code" src="{{ qr_code_url }}" alt="Generated QR Code">
+    <div>
+        <a id="download-btn" href="{{ qr_code_url }}" download="vcard-qrcode.png">
+            <button type="button">Download QR Code</button>
+        </a>
+    </div>
     {% endif %}
 </body>
 </html>
