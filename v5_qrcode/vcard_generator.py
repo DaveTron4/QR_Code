@@ -1,4 +1,3 @@
-import PIL
 from PIL import Image, ImageDraw
 import qrcode
 from qrcode.image.styledpil import StyledPilImage
@@ -7,6 +6,7 @@ from qrcode.image.styles.moduledrawers import VerticalBarsDrawer
 from  qrcode.image.styles.colormasks import SolidFillColorMask
 import vobject
 import os
+import base64
 
 def generate_vcard_qr(name, phone, email, image_path = None):
 
@@ -28,6 +28,18 @@ def generate_vcard_qr(name, phone, email, image_path = None):
     vcard.add("email")
     vcard.email.value =email
     vcard.email.type_param = "INTERNET"
+
+    # Add Image if provided
+    # if image_path:
+    #     try:
+    #         with open(image_path, "rb") as image_file:
+    #             encoded_image = base64.b64encode(image_file.read()).decode("utf-8")
+    #             photo = vcard.add("photo")
+    #             photo.value = f"data:image/jpeg;base64,{encoded_image}"
+    #             photo.encoding_param = "BASE64"
+    #             photo.type_param = "JPEG"
+    #     except Exception as e:
+    #         print(f"Error loading image: {e}")
 
     seriealized_vcard = vcard.serialize()
 
@@ -85,4 +97,4 @@ def generate_vcard_qr(name, phone, email, image_path = None):
     if image_path:
         os.remove(temp_image_path)
 
-    return path
+    return path   

@@ -1,2 +1,3 @@
 # Ignore venv's
 .venv/
+*.png

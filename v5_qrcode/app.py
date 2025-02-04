@@ -7,8 +7,8 @@ from vcard_generator import generate_vcard_qr
 app = Flask(__name__)
 
 # Configuration for uploaded files
-UPLOAD_FOLDER = "static/uploads"
-OUTPUT_FOLDER = "static/output"
+UPLOAD_FOLDER = "v5_qrcode/static/uploads"
+OUTPUT_FOLDER = "v5_qrcode/static/output"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
