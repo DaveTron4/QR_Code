@@ -83,7 +83,7 @@ def generate_vcard_qr(name, phone, email, image_path = None):
 
     # THIS IS IMPORTANT : without this an error is shown
     # Save the QR Code to the 'output' directory
-    output_dir = f"v5_qrcode/static/output"
+    output_dir = f"static/output"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)  # Create the directory if it doesn't exist
     

@@ -7,19 +7,27 @@ from vcard_generator import generate_vcard_qr
 app = Flask(__name__)
 
 # Configuration for uploaded files
-UPLOAD_FOLDER = "v5_qrcode/static/uploads"
-OUTPUT_FOLDER = "v5_qrcode/static/output"
+UPLOAD_FOLDER = "static/uploads"
+OUTPUT_FOLDER = "static/output"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["OUTPUT_FOLDER"] = OUTPUT_FOLDER
 
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+os.makedirs(app.config["OUTPUT_FOLDER"], exist_ok=True)
+
 # Helper function to check allowed file extensions
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["POST"])
 def index():
+    return render_template("index.html")
+
+# Route for getting input from vcard form
+@app.route("/generate_qr_vcard", methods=["GET", "POST"])
+def generate_qr_vcard():
     if request.method == "POST":
         # Get user input from form
         name = request.form.get("name")
@@ -48,13 +56,23 @@ def index():
             os.remove(image_path)
 
         # Serve the QR code to the user
-        return render_template("index.html", qr_code_url=qr_code_url)
+        return render_template("index.html", qr_code_url=qr_code_url, active_form = "vcard")
 
-    return render_template("index.html", qr_code_url=None)
+    # return render_template("index.html", qr_code_url=None)
+
+
+
+# Route for getting input from link form
+@app.route("/generate_qr_link", methods=["GET", "POST"])
+def generate_qr_link():
+    return render_template("index.html", qr_code_url = None, active_form = "link")
+
+
+
 
 @app.route('/download_qr/<filename>')
 def download_qr(filename):
-    output_dir = "v5_qrcode/static/output"
+    output_dir = app.config["OUTPUT_FOLDER"]
     file_path = os.path.join(output_dir, filename)
 
     # Check if the file exists
