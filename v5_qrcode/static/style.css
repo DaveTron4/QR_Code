@@ -25,16 +25,7 @@ h1 {
     text-align: center;
 }
 
-/* Form Container */
-form {
-    background-color: #ffffff;
-    padding: 20px 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 500px;
-    text-align: center;
-}
+
 
 /* Form Elements */
 form div {
@@ -139,11 +130,47 @@ img {
 
 
 
-
 .main-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+.left-container {
+    flex: 1;
+    margin: 10px;
+    background-color: #ffffff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.right-container {
+    flex: 1;
+    background-color: #ffffff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    margin: 10px;
 }
 
 #qr-code {
+    height: 50%;
+    width: 50%;
+}
 
+#change-form-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+#change-form-buttons button {
+    margin: 10px;
 }

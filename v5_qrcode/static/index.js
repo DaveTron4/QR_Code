@@ -41,6 +41,10 @@ function changeForm(type) {
                     <label for="link">Enter Link:</label>
                     <input type="url" id="link" name="link" required>
                 </div>
+                <div>
+                    <label for="image">Upload Image (optional):</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
                 <button type="submit">Generate QR Code</button>
             </form>
         `;

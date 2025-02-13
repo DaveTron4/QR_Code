@@ -1,27 +1,14 @@
-from flask import Flask, render_template, request, send_file, url_for, redirect, abort
-from werkzeug.utils import secure_filename
+from flask import render_template, request, send_file, abort
 import os
-import re
-from vcard_generator import generate_vcard_qr
+from static.handlers.vcard_handler import vcard_handler
+from static.handlers.configuration_handler import configuration
+from static.handlers.image_upload_handler import image_upload
+from static.handlers.link_handler import link_handler
 
-app = Flask(__name__)
+app = configuration()
 
-# Configuration for uploaded files
-UPLOAD_FOLDER = "static/uploads"
-OUTPUT_FOLDER = "static/output"
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
 
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-app.config["OUTPUT_FOLDER"] = OUTPUT_FOLDER
-
-os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-os.makedirs(app.config["OUTPUT_FOLDER"], exist_ok=True)
-
-# Helper function to check allowed file extensions
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@app.route("/", methods=["POST"])
+@app.route("/", methods=["GET", "POST"])
 def index():
     return render_template("index.html")
 
@@ -33,39 +20,33 @@ def generate_qr_vcard():
         name = request.form.get("name")
         phone = request.form.get("phone")
         email = request.form.get("email")
-
-        # Validate phone number (e.g., must be exactly 10 digits)
-        if not re.fullmatch(r"\d{10}", phone):
-            return render_template("index.html", qr_code_url=None, error="Invalid phone number! Please enter a 10-digit number.")
-
-        # Handle image upload
         image_file = request.files.get("image")
-        image_path = None
-        if image_file and allowed_file(image_file.filename):
-            filename = secure_filename(image_file.filename)
-            image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            image_file.save(image_path)
+        
+        # Handle image upload
+        image_path = image_upload(image_file, app)
 
-        # Generate the QR code with or without the image
-        qr_code_path = generate_vcard_qr(name, phone, email, image_path)  # Pass the image path to the function if available
-        qr_code_filename = os.path.basename(qr_code_path)
-        qr_code_url = url_for("static", filename=f"output/{qr_code_filename}")
-
-        # Clean up the uploaded image after QR code generation
-        if image_path and os.path.exists(image_path):
-            os.remove(image_path)
+        # Handle vcard creation
+        qr_code_url = vcard_handler(name, phone, email, image_path)
 
         # Serve the QR code to the user
         return render_template("index.html", qr_code_url=qr_code_url, active_form = "vcard")
-
-    # return render_template("index.html", qr_code_url=None)
-
 
 
 # Route for getting input from link form
 @app.route("/generate_qr_link", methods=["GET", "POST"])
 def generate_qr_link():
-    return render_template("index.html", qr_code_url = None, active_form = "link")
+    if request.method == "POST":
+        # Get user input from form
+        link = request.form.get("link")
+        image_file = request.files.get("image")
+
+        # Handle image upload
+        image_path = image_upload(image_file, app)
+
+        # Handle link qr creation
+        qr_code_url = link_handler(link, image_path)
+        
+        return render_template("index.html", qr_code_url = qr_code_url, active_form = "link")
 
 
 

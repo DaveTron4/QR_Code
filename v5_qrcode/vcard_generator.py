@@ -1,12 +1,9 @@
-from PIL import Image, ImageDraw
 import qrcode
 from qrcode.image.styledpil import StyledPilImage
-from qrcode.image.styles.moduledrawers import RoundedModuleDrawer, CircleModuleDrawer, SquareModuleDrawer
-from qrcode.image.styles.moduledrawers import VerticalBarsDrawer
-from  qrcode.image.styles.colormasks import SolidFillColorMask
 import vobject
 import os
-import base64
+from static.handlers.image_configuration_handler import image_configuration
+
 
 def generate_vcard_qr(name, phone, email, image_path = None):
 
@@ -29,6 +26,7 @@ def generate_vcard_qr(name, phone, email, image_path = None):
     vcard.email.value =email
     vcard.email.type_param = "INTERNET"
 
+    # TODO: this will have to go on the image_configuration_handler.py script
     # Add Image if provided
     # if image_path:
     #     try:
@@ -42,35 +40,8 @@ def generate_vcard_qr(name, phone, email, image_path = None):
     #         print(f"Error loading image: {e}")
 
     seriealized_vcard = vcard.serialize()
-
-    def add_corners(im, rad):
-        circle = Image.new('L', (rad * 2, rad * 2), 0)
-        draw = ImageDraw.Draw(circle)
-        draw.ellipse((0, 0, rad * 2 - 1, rad * 2 - 1), fill=255)
-        alpha = Image.new('L', im.size, 255)
-        w, h = im.size
-        alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
-        alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h - rad))
-        alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w - rad, 0))
-        alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w - rad, h - rad))
-        im.putalpha(alpha)
-        return im
-
     if image_path:
-        # Check the file extension
-        file_extension = os.path.splitext(image_path)[1].lower()
-        image = Image.open(image_path)
-        # Add corners as you did previously
-        image = add_corners(image, 50)
-        if file_extension == '.png':
-            # If the file is PNG, preserve the transparency (RGBA)
-            image = image.convert("RGBA")
-        elif file_extension == '.jpeg' or file_extension == '.jpg':
-            # If the file is JPEG, convert to RGB (no transparency)
-            image = image.convert("RGB")
-        # Save the modified image to a temporary file
-        temp_image_path = "temp_image.png"  # You can change the file extension if needed
-        image.save(temp_image_path)
+        temp_image_path = image_configuration(image_path)
 
     # Generate QR Code
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H)
