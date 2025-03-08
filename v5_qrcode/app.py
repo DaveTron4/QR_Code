@@ -1,4 +1,4 @@
-from flask import render_template, request, send_file, abort
+from flask import render_template, request, send_file, abort, send_from_directory
 import os
 from static.handlers.vcard_handler import vcard_handler
 from static.handlers.configuration_handler import configuration
@@ -44,12 +44,14 @@ def generate_qr_link():
         image_path = image_upload(image_file, app)
 
         # Handle link qr creation
-        qr_code_url = link_handler(link, image_path)
+        qr_code_url = link_handler(link, image_path) if image_path else None
         
         return render_template("index.html", qr_code_url = qr_code_url, active_form = "link")
 
 
-
+@app.route("/static/output/<filename>")
+def serve_qr_code(filename):
+    return send_from_directory("static/output", filename)
 
 @app.route('/download_qr/<filename>')
 def download_qr(filename):

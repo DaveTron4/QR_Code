@@ -1,6 +1,7 @@
 import qrcode
 from qrcode.image.styledpil import StyledPilImage
 import os
+import uuid
 
 from static.handlers.image_configuration_handler import image_configuration
 
@@ -12,6 +13,7 @@ def generate_link_qr(link, image_path = None):
     # Generates QR COde
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H)
     qr.add_data(link)
+    qr.make(fit=True)
     if image_path:
         qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path)
     else:
@@ -23,7 +25,7 @@ def generate_link_qr(link, image_path = None):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    qr_code_filename = f"link_qr.png"
+    qr_code_filename = f"link_qr_{uuid.uuid4().hex[:8]}.png"
     path = os.path.join(output_dir, qr_code_filename)
 
     # Save the QR code image
