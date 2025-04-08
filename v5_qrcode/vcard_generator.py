@@ -47,6 +47,7 @@ def generate_vcard_qr(name, phone, email, image_path = None):
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H)
     qr.add_data(seriealized_vcard)
     if image_path:
+        # TODO: Add module drawer that change with user input and masks as well
         qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path)
     else:
         qr_img = qr.make_image()

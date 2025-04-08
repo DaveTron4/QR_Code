@@ -4,6 +4,7 @@ from static.handlers.vcard_handler import vcard_handler
 from static.handlers.configuration_handler import configuration
 from static.handlers.image_upload_handler import image_upload
 from static.handlers.link_handler import link_handler
+from static.handlers.wifi_handler import wifi_handler
 
 app = configuration()
 
@@ -47,6 +48,25 @@ def generate_qr_link():
         qr_code_url = link_handler(link, image_path) if image_path else link_handler(link, None)
         
         return render_template("index.html", qr_code_url = qr_code_url, active_form = "link")
+
+# Route for getting imput from wifi form
+@app.route("/generate_qr_wifi", methods=["GET", "POST"])
+def generate_qr_wifi():
+    if request.method == "POST":
+        # Get user input from form
+        ssid = request.form.get("ssid")
+        password = request.form.get("password")
+        encryption = request.form.get("encryption")
+
+        image_file = request.files.get("image")
+
+        # Handle image upload
+        image_path = image_upload(image_file, app)
+
+        # Handle wifi qr creation
+        qr_code_url = wifi_handler(ssid, password, encryption, image_path) if image_path else wifi_handler(ssid, password, encryption, None)
+
+        return render_template("index.html", qr_code_url = qr_code_url, active_form = "wifi")
 
 
 # @app.route("/static/output/<filename>")

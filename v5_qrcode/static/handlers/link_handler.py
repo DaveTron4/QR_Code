@@ -1,4 +1,3 @@
-from flask import url_for
 from link_qr_generator import generate_link_qr
 import os
 
