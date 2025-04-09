@@ -5,6 +5,8 @@ from static.handlers.configuration_handler import configuration
 from static.handlers.image_upload_handler import image_upload
 from static.handlers.link_handler import link_handler
 from static.handlers.wifi_handler import wifi_handler
+from static.handlers.calendar_handler import calendar_handler
+from static.handlers.date_time_handler import handle_date_time
 
 app = configuration()
 
@@ -67,6 +69,36 @@ def generate_qr_wifi():
         qr_code_url = wifi_handler(ssid, password, encryption, image_path) if image_path else wifi_handler(ssid, password, encryption, None)
 
         return render_template("index.html", qr_code_url = qr_code_url, active_form = "wifi")
+    
+# Route for getting imput from calendar form
+@app.route("/generate_qr_calendar", methods=["GET", "POST"])
+def generate_qr_calendar():
+    if request.method == "POST":
+        # Get user input from form
+        event_name = request.form.get("event")
+        raw_datetime = request.form['datetime']
+        location = request.form.get("location")
+        duration = request.form.get("duration")
+        description = request.form.get("description")
+        timezone = request.form.get("timezone")
+
+        # Split the date and time
+        date, time = raw_datetime.split('T')
+
+        # Handle the date and time along with duration
+        dtstart, dtend = handle_date_time(date, time, timezone, duration)
+
+        image_file = request.files.get("image")
+
+        # Handle image upload
+        image_path = image_upload(image_file, app)
+
+        # Pass the duration as part of the function call
+        qr_code_url = calendar_handler(event_name, dtstart, dtend, location, description, image_path) if image_path else calendar_handler(event_name, dtstart, dtend, location, description, None)
+
+        return render_template("index.html", qr_code_url=qr_code_url, active_form="calendar")
+
+
 
 
 # @app.route("/static/output/<filename>")
