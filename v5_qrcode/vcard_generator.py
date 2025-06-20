@@ -3,9 +3,10 @@ from qrcode.image.styledpil import StyledPilImage
 import vobject
 import os
 from static.handlers.image_configuration_handler import image_configuration
+from static.handlers.qr_styles_handler import get_drawer
 
 
-def generate_vcard_qr(name, phone, email, image_path = None):
+def generate_vcard_qr(name, phone, email, qr_shape, qr_style, image_path = None):
 
     # vCard Version
     vcard = vobject.vCard()
@@ -40,17 +41,22 @@ def generate_vcard_qr(name, phone, email, image_path = None):
     #         print(f"Error loading image: {e}")
 
     seriealized_vcard = vcard.serialize()
+
     if image_path:
         temp_image_path = image_configuration(image_path)
+
+    module_drawer = get_drawer(qr_shape)
 
     # Generate QR Code
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H)
     qr.add_data(seriealized_vcard)
     if image_path:
         # TODO: Add module drawer that change with user input and masks as well
-        qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path)
+        # TODO: you can also use eye_drawer for outer and inner eyes and apply color masks to them aswell
+        # TODO: doing this will require doing three separate images and then merging them
+        qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path, module_drawer=module_drawer)
     else:
-        qr_img = qr.make_image()
+        qr_img = qr.make_image(image_factory=StyledPilImage, module_drawer=module_drawer)
 
 
     # THIS IS IMPORTANT : without this an error is shown

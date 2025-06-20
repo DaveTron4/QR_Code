@@ -1,10 +1,10 @@
 import qrcode, os, uuid
 from qrcode.image.styledpil import StyledPilImage
 from static.handlers.image_configuration_handler import image_configuration
-from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+from static.handlers.qr_styles_handler import get_drawer
 
 
-def generate_calendar_qr(event_name, dtstart, dtend, location, description, image_path=None):
+def generate_calendar_qr(event_name, dtstart, dtend, location, description, qr_shape, qr_style, image_path=None):
     # Ensure all data fields are stripped of extra whitespace
     event_name = event_name.strip()
     location = location.strip()
@@ -22,6 +22,8 @@ DESCRIPTION:{description}
 END:VEVENT
 END:VCALENDAR"""
     
+    module_drawer = get_drawer(qr_shape)
+    
     # Handles image configuration
     if image_path:
         temp_image_path = image_configuration(image_path)
@@ -33,9 +35,9 @@ END:VCALENDAR"""
 
     if image_path:
         # TODO: Add module drawer that change with user input and masks as well
-        qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path)
+        qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path, module_drawer=module_drawer)
     else:
-        qr_img = qr.make_image()
+        qr_img = qr.make_image(image_factory=StyledPilImage, module_drawer=module_drawer)
 
     # THIS IS IMPORTANT : without this an error is shown
     # Save the QR Code to the 'output' directory

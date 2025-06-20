@@ -15,7 +15,7 @@ app = configuration()
 def index():
     return render_template("index.html")
 
-# Route for getting input from vcard form
+#! Route for getting input from vcard form
 @app.route("/generate_qr_vcard", methods=["GET", "POST"])
 def generate_qr_vcard():
     if request.method == "POST":
@@ -24,34 +24,38 @@ def generate_qr_vcard():
         phone = request.form.get("phone")
         email = request.form.get("email")
         image_file = request.files.get("image")
+        qr_shape = request.form.get("qr_shape")
+        qr_style = request.form.get("qr_style")
         
         # Handle image upload
         image_path = image_upload(image_file, app)
 
         # Handle vcard creation
-        qr_code_url = vcard_handler(name, phone, email, image_path)
+        qr_code_url = vcard_handler(name, phone, email, qr_shape, qr_style, image_path)
 
         # Serve the QR code to the user
         return render_template("index.html", qr_code_url=qr_code_url, active_form = "vcard")
 
 
-# Route for getting input from link form
+#! Route for getting input from link form
 @app.route("/generate_qr_link", methods=["GET", "POST"])
 def generate_qr_link():
     if request.method == "POST":
         # Get user input from form
         link = request.form.get("link")
         image_file = request.files.get("image")
+        qr_shape = request.form.get("qr_shape")
+        qr_style = request.form.get("qr_style")
 
         # Handle image upload
         image_path = image_upload(image_file, app)
 
         # Handle link qr creation
-        qr_code_url = link_handler(link, image_path) if image_path else link_handler(link, None)
+        qr_code_url = link_handler(link, qr_shape, qr_style, image_path) if image_path else link_handler(link, qr_shape, qr_style, None)
         
         return render_template("index.html", qr_code_url = qr_code_url, active_form = "link")
 
-# Route for getting imput from wifi form
+#! Route for getting imput from wifi form
 @app.route("/generate_qr_wifi", methods=["GET", "POST"])
 def generate_qr_wifi():
     if request.method == "POST":
@@ -59,18 +63,19 @@ def generate_qr_wifi():
         ssid = request.form.get("ssid")
         password = request.form.get("password")
         encryption = request.form.get("encryption")
-
         image_file = request.files.get("image")
+        qr_shape = request.form.get("qr_shape")
+        qr_style = request.form.get("qr_style")
 
         # Handle image upload
         image_path = image_upload(image_file, app)
 
         # Handle wifi qr creation
-        qr_code_url = wifi_handler(ssid, password, encryption, image_path) if image_path else wifi_handler(ssid, password, encryption, None)
+        qr_code_url = wifi_handler(ssid, password, encryption, qr_shape, qr_style, image_path) if image_path else wifi_handler(ssid, password, encryption, qr_shape, qr_style, None)
 
         return render_template("index.html", qr_code_url = qr_code_url, active_form = "wifi")
     
-# Route for getting imput from calendar form
+#! Route for getting imput from calendar form
 @app.route("/generate_qr_calendar", methods=["GET", "POST"])
 def generate_qr_calendar():
     if request.method == "POST":
@@ -81,6 +86,8 @@ def generate_qr_calendar():
         duration = request.form.get("duration")
         description = request.form.get("description")
         timezone = request.form.get("timezone")
+        qr_shape = request.form.get("qr_shape")
+        qr_style = request.form.get("qr_style")
 
         # Split the date and time
         date, time = raw_datetime.split('T')
@@ -94,7 +101,7 @@ def generate_qr_calendar():
         image_path = image_upload(image_file, app)
 
         # Pass the duration as part of the function call
-        qr_code_url = calendar_handler(event_name, dtstart, dtend, location, description, image_path) if image_path else calendar_handler(event_name, dtstart, dtend, location, description, None)
+        qr_code_url = calendar_handler(event_name, dtstart, dtend, location, description, qr_shape, qr_style, image_path) if image_path else calendar_handler(event_name, dtstart, dtend, location, description, qr_shape, qr_style, None)
 
         return render_template("index.html", qr_code_url=qr_code_url, active_form="calendar")
 

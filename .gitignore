@@ -1,5 +1,6 @@
 # Ignore venv's
 .venv/
+qr_code_env/
 *.png
 
 *__pycache__/

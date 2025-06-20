@@ -1,14 +1,16 @@
 import qrcode, os, uuid
 from qrcode.image.styledpil import StyledPilImage
 from static.handlers.image_configuration_handler import image_configuration
-from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+from static.handlers.qr_styles_handler import get_drawer
 
-def generate_wifi_qr(ssid, password, encryption, image_path = None):
+def generate_wifi_qr(ssid, password, encryption, qr_shape, qr_style, image_path = None):
     if encryption == "None":
         encryption = ""
     else:
         encryption = "WPA"
     wifi_data = f"WIFI:S:{ssid};T:{encryption};P:{password};;"
+
+    module_drawer = get_drawer(qr_shape)
 
     # Handles image configuration
     if image_path:
@@ -20,9 +22,9 @@ def generate_wifi_qr(ssid, password, encryption, image_path = None):
     qr.make(fit=True)
     if image_path:
         # TODO: Add module drawer that change with user input and masks as well
-        qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path)
+        qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path, module_drawer=module_drawer)
     else:
-        qr_img = qr.make_image()
+        qr_img = qr.make_image(image_factory=StyledPilImage, module_drawer=module_drawer)
     
     # THIS IS IMPORTANT : without this an error is shown
     # Save the QR Code to the 'output' directory

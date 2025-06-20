@@ -31,27 +31,27 @@ function changeForm(type) {
                     <input type="file" id="image" name="image" accept="image/*">
                 </div>
                 <div>
-                    <label for="qr-style">QR Style:</label>
-                    <select id="encryption" name="encryption" required>
+                    <label for="qr-style">QR Shape:</label>
+                    <select id="qr_shape" name="qr_shape" required>
                         <option value="none">None</option>
-                        <option value="SquareModuleDrawer">SquareModuleDrawer</option>
-                        <option value="GrappedSquareMofuleDrawer">GrappedSquareMofuleDrawer</option>
-                        <option value="CircleModuleDrawer">CircleModuleDrawer</option>
-                        <option value="RoundedModuleDrawer">RoundedModuleDrawer</option>
-                        <option value="VerticalBarsDrawer">VerticalBarsDrawer</option>
-                        <option value="HorizontalBarsDrawer">HorizontalBarsDrawer</option>
+                        <option value="square">Square</option>
+                        <option value="gapped_square">Gapped Square</option>
+                        <option value="circle">Circle</option>
+                        <option value="rounded">Rounded</option>
+                        <option value="vertical_bar">Vertical Bars</option>
+                        <option value="horizontal_bar">Horizontal Bars</option>
                     </select>
                 </div>
                 <div>
-                    <label for="color-masks">QR Masks:</label>
-                    <select id="encryption" name="encryption" required>
+                    <label for="color-masks">QR Style:</label>
+                    <select id="qr_style" name="qr_style" required>
                         <option value="none">None</option>
-                        <option value="SolidFillColorMask">SolidFillColorMask</option>
-                        <option value="RadialGradiantColorMask">RadialGradiantColorMask</option>
-                        <option value="SquareGradiantColorMask">SquareGradiantColorMask</option>
-                        <option value="HorizontalGradiantColorMask">HorizontalGradiantColorMask</option>
-                        <option value="VerticalGradiantColorMask">VerticalGradiantColorMask</option>
-                        <option value="ImageColorMask">ImageColorMask</option>
+                        <option value="SolidFillColorMask">Solid Fill</option>
+                        <option value="RadialGradiantColorMask">Radial Gradiant</option>
+                        <option value="SquareGradiantColorMask">Square Gradiant</option>
+                        <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
+                        <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
+                        <option value="ImageColorMask">Image</option>
                     </select>
                 </div>
                 <button type="submit">Generate QR Code</button>
@@ -69,27 +69,27 @@ function changeForm(type) {
                     <input type="file" id="image" name="image" accept="image/*">
                 </div>
                 <div>
-                    <label for="qr-style">QR Style:</label>
-                    <select id="encryption" name="encryption" required>
+                    <label for="qr-style">QR Shape:</label>
+                    <select id="qr_shape" name="qr_shape" required>
                         <option value="none">None</option>
-                        <option value="SquareModuleDrawer">SquareModuleDrawer</option>
-                        <option value="GrappedSquareMofuleDrawer">GrappedSquareMofuleDrawer</option>
-                        <option value="CircleModuleDrawer">CircleModuleDrawer</option>
-                        <option value="RoundedModuleDrawer">RoundedModuleDrawer</option>
-                        <option value="VerticalBarsDrawer">VerticalBarsDrawer</option>
-                        <option value="HorizontalBarsDrawer">HorizontalBarsDrawer</option>
+                        <option value="square">Square</option>
+                        <option value="gapped_square">Gapped Square</option>
+                        <option value="circle">Circle</option>
+                        <option value="rounded">Rounded</option>
+                        <option value="vertical_bar">Vertical Bars</option>
+                        <option value="horizontal_bar">Horizontal Bars</option>
                     </select>
                 </div>
                 <div>
-                    <label for="color-masks">QR Masks:</label>
-                    <select id="encryption" name="encryption" required>
+                    <label for="color-masks">QR Style:</label>
+                    <select id="qr_style" name="qr_style" required>
                         <option value="none">None</option>
-                        <option value="SolidFillColorMask">SolidFillColorMask</option>
-                        <option value="RadialGradiantColorMask">RadialGradiantColorMask</option>
-                        <option value="SquareGradiantColorMask">SquareGradiantColorMask</option>
-                        <option value="HorizontalGradiantColorMask">HorizontalGradiantColorMask</option>
-                        <option value="VerticalGradiantColorMask">VerticalGradiantColorMask</option>
-                        <option value="ImageColorMask">ImageColorMask</option>
+                        <option value="SolidFillColorMask">Solid Fill</option>
+                        <option value="RadialGradiantColorMask">Radial Gradiant</option>
+                        <option value="SquareGradiantColorMask">Square Gradiant</option>
+                        <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
+                        <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
+                        <option value="ImageColorMask">Image</option>
                     </select>
                 </div>
                 <button type="submit">Generate QR Code</button>
@@ -120,27 +120,27 @@ function changeForm(type) {
                     <input type="file" id="image" name="image" accept="image/*">
                 </div>
                 <div>
-                    <label for="qr-style">QR Style:</label>
-                    <select id="encryption" name="encryption" required>
+                    <label for="qr-style">QR Shape:</label>
+                    <select id="qr_shape" name="qr_shape" required>
                         <option value="none">None</option>
-                        <option value="SquareModuleDrawer">SquareModuleDrawer</option>
-                        <option value="GrappedSquareMofuleDrawer">GrappedSquareMofuleDrawer</option>
-                        <option value="CircleModuleDrawer">CircleModuleDrawer</option>
-                        <option value="RoundedModuleDrawer">RoundedModuleDrawer</option>
-                        <option value="VerticalBarsDrawer">VerticalBarsDrawer</option>
-                        <option value="HorizontalBarsDrawer">HorizontalBarsDrawer</option>
+                        <option value="square">Square</option>
+                        <option value="gapped_square">Gapped Square</option>
+                        <option value="circle">Circle</option>
+                        <option value="rounded">Rounded</option>
+                        <option value="vertical_bar">Vertical Bars</option>
+                        <option value="horizontal_bar">Horizontal Bars</option>
                     </select>
                 </div>
                 <div>
-                    <label for="color-masks">QR Masks:</label>
-                    <select id="encryption" name="encryption" required>
+                    <label for="color-masks">QR Style:</label>
+                    <select id="qr_style" name="qr_style" required>
                         <option value="none">None</option>
-                        <option value="SolidFillColorMask">SolidFillColorMask</option>
-                        <option value="RadialGradiantColorMask">RadialGradiantColorMask</option>
-                        <option value="SquareGradiantColorMask">SquareGradiantColorMask</option>
-                        <option value="HorizontalGradiantColorMask">HorizontalGradiantColorMask</option>
-                        <option value="VerticalGradiantColorMask">VerticalGradiantColorMask</option>
-                        <option value="ImageColorMask">ImageColorMask</option>
+                        <option value="SolidFillColorMask">Solid Fill</option>
+                        <option value="RadialGradiantColorMask">Radial Gradiant</option>
+                        <option value="SquareGradiantColorMask">Square Gradiant</option>
+                        <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
+                        <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
+                        <option value="ImageColorMask">Image</option>
                     </select>
                 </div>
                 <button type="submit">Generate QR Code</button>
@@ -186,27 +186,27 @@ function changeForm(type) {
                     <input type="file" id="image" name="image" accept="image/*">
                 </div>
                 <div>
-                    <label for="qr-style">QR Style:</label>
-                    <select id="encryption" name="encryption" required>
+                    <label for="qr-style">QR Shape:</label>
+                    <select id="qr_shape" name="qr_shape" required>
                         <option value="none">None</option>
-                        <option value="SquareModuleDrawer">SquareModuleDrawer</option>
-                        <option value="GrappedSquareMofuleDrawer">GrappedSquareMofuleDrawer</option>
-                        <option value="CircleModuleDrawer">CircleModuleDrawer</option>
-                        <option value="RoundedModuleDrawer">RoundedModuleDrawer</option>
-                        <option value="VerticalBarsDrawer">VerticalBarsDrawer</option>
-                        <option value="HorizontalBarsDrawer">HorizontalBarsDrawer</option>
+                        <option value="square">Square</option>
+                        <option value="gapped_square">Gapped Square</option>
+                        <option value="circle">Circle</option>
+                        <option value="rounded">Rounded</option>
+                        <option value="vertical_bar">Vertical Bars</option>
+                        <option value="horizontal_bar">Horizontal Bars</option>
                     </select>
                 </div>
                 <div>
-                    <label for="color-masks">QR Masks:</label>
-                    <select id="encryption" name="encryption" required>
+                    <label for="color-masks">QR Style:</label>
+                    <select id="qr_style" name="qr_style" required>
                         <option value="none">None</option>
-                        <option value="SolidFillColorMask">SolidFillColorMask</option>
-                        <option value="RadialGradiantColorMask">RadialGradiantColorMask</option>
-                        <option value="SquareGradiantColorMask">SquareGradiantColorMask</option>
-                        <option value="HorizontalGradiantColorMask">HorizontalGradiantColorMask</option>
-                        <option value="VerticalGradiantColorMask">VerticalGradiantColorMask</option>
-                        <option value="ImageColorMask">ImageColorMask</option>
+                        <option value="SolidFillColorMask">Solid Fill</option>
+                        <option value="RadialGradiantColorMask">Radial Gradiant</option>
+                        <option value="SquareGradiantColorMask">Square Gradiant</option>
+                        <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
+                        <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
+                        <option value="ImageColorMask">Image</option>
                     </select>
                 </div>
                 <button type="submit">Generate QR Code</button>
