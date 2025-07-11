@@ -3,10 +3,10 @@ import os
 from werkzeug.utils import secure_filename
 
 
-def image_upload(image_file, app):
-    image_path = None
-    if image_file and allowed_file(image_file.filename):
-        filename = secure_filename(image_file.filename)
-        image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        image_file.save(image_path)
-    return image_path
+def image_upload(file, app):
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(file_path)
+        return file_path
+    return None

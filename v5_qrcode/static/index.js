@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (activeForm) {
         changeForm(activeForm);
     }
-    
 });
 
 function attachQrStyleListener() {

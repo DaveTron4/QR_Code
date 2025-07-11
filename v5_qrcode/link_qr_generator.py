@@ -1,14 +1,15 @@
 import qrcode, os, uuid
 from qrcode.image.styledpil import StyledPilImage
 from static.handlers.image_configuration_handler import image_configuration
-from static.handlers.qr_styles_handler import get_drawer
+from static.handlers.qr_styles_handler import get_drawer, get_color_mask
 
-def generate_link_qr(link, qr_shape, qr_style, image_path = None):
+def generate_link_qr(link, qr_shape, qr_style, image_path = None, solid_color=None, start_color=None, end_color=None, mask_image_path=None):
     # Handles image configuration
     if image_path:
         temp_image_path = image_configuration(image_path)
 
     module_drawer = get_drawer(qr_shape)
+    color_mask = get_color_mask(qr_style, solid_color, start_color, end_color, mask_image_path)
 
     # Generates QR COde
     qr = qrcode.QRCode(version=5, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=20, border=5)
@@ -16,9 +17,9 @@ def generate_link_qr(link, qr_shape, qr_style, image_path = None):
     qr.make(fit=True)
     if image_path:
         # TODO: Add module drawer that change with user input and masks as well
-        qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path, module_drawer=module_drawer)
+        qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path, module_drawer=module_drawer, color_mask=color_mask)
     else:
-        qr_img = qr.make_image(image_factory=StyledPilImage, module_drawer=module_drawer)
+        qr_img = qr.make_image(image_factory=StyledPilImage, module_drawer=module_drawer, color_mask=color_mask)
 
     # THIS IS IMPORTANT : without this an error is shown
     # Save the QR Code to the 'output' directory

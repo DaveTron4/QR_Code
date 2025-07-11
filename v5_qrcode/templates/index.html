@@ -55,13 +55,13 @@
         <!-- *right side container -->
         <div class="right-container">
             {% if qr_code_url %}
-            <h2>Your QR Code:</h2>
-            <img id="qr-code" src="{{ qr_code_url }}" alt="Generated QR Code">
-            <div>
-                <a id="download-btn" href="{{ qr_code_url }}" download="vcard-qrcode.png">
-                    <button type="button">Download QR Code</button>
-                </a>
-            </div>
+                <h2>Your QR Code:</h2>
+                <img id="qr-code" src="{{ qr_code_url }}" alt="Generated QR Code">
+                <div>
+                    <a href="{{ url_for('download_qr', filename=filename) }}?v={{ uuid }}">
+                        <button type="button">Download QR Code</button>
+                    </a>
+                </div>
             {% endif %}
         </div>
     </div>
