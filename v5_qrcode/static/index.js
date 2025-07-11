@@ -2,7 +2,52 @@ document.addEventListener("DOMContentLoaded", function () {
     if (activeForm) {
         changeForm(activeForm);
     }
+    
 });
+
+function attachQrStyleListener() {
+    const qrStyleSelect = document.getElementById("qr_style");
+    const styleOptionsDiv = document.getElementById("styleOptions");
+
+    if (!qrStyleSelect || !styleOptionsDiv) return; 
+
+    qrStyleSelect.addEventListener("change", function () {
+        const style = this.value;
+        styleOptionsDiv.innerHTML = ''; // Clear previous fields
+
+        if (style === 'SolidFillColorMask') {
+            styleOptionsDiv.innerHTML = `
+                <div>
+                    <label for="solid-color">Color:</label>
+                    <input type="color" id="solid-color" name="solid_color" value="#000000">
+                </div>
+            `;
+        } else if (
+            style === 'RadialGradiantColorMask' ||
+            style === 'SquareGradiantColorMask' ||
+            style === 'HorizontalGradiantColorMask' ||
+            style === 'VerticalGradiantColorMask'
+        ) {
+            styleOptionsDiv.innerHTML = `
+                <div>
+                    <label for="start-color">Start Color:</label>
+                    <input type="color" id="start-color" name="start_color" value="#000000">
+                </div>
+                <div>
+                    <label for="end-color">End Color:</label>
+                    <input type="color" id="end-color" name="end_color" value="#ffffff">
+                </div>
+            `;
+        } else if (style === 'ImageColorMask') {
+            styleOptionsDiv.innerHTML = `
+                <div>
+                    <label for="mask-image">Upload Color Mask Image:</label>
+                    <input type="file" id="mask-image" name="mask_image" accept="image/*">
+                </div>
+            `;
+        }
+    });
+}
 
 function changeForm(type) {
     let formContent = document.getElementById("form-container");
@@ -31,7 +76,7 @@ function changeForm(type) {
                     <input type="file" id="image" name="image" accept="image/*">
                 </div>
                 <div>
-                    <label for="qr-style">QR Shape:</label>
+                    <label for="qr-shape">QR Shape:</label>
                     <select id="qr_shape" name="qr_shape" required>
                         <option value="none">None</option>
                         <option value="square">Square</option>
@@ -53,6 +98,8 @@ function changeForm(type) {
                         <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
                         <option value="ImageColorMask">Image</option>
                     </select>
+
+                    <div id="styleOptions"></div>
                 </div>
                 <button type="submit">Generate QR Code</button>
             </form>
@@ -69,7 +116,7 @@ function changeForm(type) {
                     <input type="file" id="image" name="image" accept="image/*">
                 </div>
                 <div>
-                    <label for="qr-style">QR Shape:</label>
+                    <label for="qr-shape">QR Shape:</label>
                     <select id="qr_shape" name="qr_shape" required>
                         <option value="none">None</option>
                         <option value="square">Square</option>
@@ -91,6 +138,8 @@ function changeForm(type) {
                         <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
                         <option value="ImageColorMask">Image</option>
                     </select>
+
+                    <div id="styleOptions"></div>
                 </div>
                 <button type="submit">Generate QR Code</button>
             </form>
@@ -120,7 +169,7 @@ function changeForm(type) {
                     <input type="file" id="image" name="image" accept="image/*">
                 </div>
                 <div>
-                    <label for="qr-style">QR Shape:</label>
+                    <label for="qr-shape">QR Shape:</label>
                     <select id="qr_shape" name="qr_shape" required>
                         <option value="none">None</option>
                         <option value="square">Square</option>
@@ -142,6 +191,8 @@ function changeForm(type) {
                         <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
                         <option value="ImageColorMask">Image</option>
                     </select>
+
+                    <div id="styleOptions"></div>
                 </div>
                 <button type="submit">Generate QR Code</button>
             </form>
@@ -186,7 +237,7 @@ function changeForm(type) {
                     <input type="file" id="image" name="image" accept="image/*">
                 </div>
                 <div>
-                    <label for="qr-style">QR Shape:</label>
+                    <label for="qr-shape">QR Shape:</label>
                     <select id="qr_shape" name="qr_shape" required>
                         <option value="none">None</option>
                         <option value="square">Square</option>
@@ -208,6 +259,8 @@ function changeForm(type) {
                         <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
                         <option value="ImageColorMask">Image</option>
                     </select>
+
+                    <div id="styleOptions"></div>
                 </div>
                 <button type="submit">Generate QR Code</button>
             </form>
@@ -216,4 +269,6 @@ function changeForm(type) {
     // else{
     //     formContent.innerHTML = ''
     // }
+
+    attachQrStyleListener();
 }
