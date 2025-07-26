@@ -3,5 +3,6 @@
 qr_code_env/
 uploads/
 output/
+.vscode/
 
 *__pycache__/

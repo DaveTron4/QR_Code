@@ -4,49 +4,160 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-function attachQrStyleListener() {
-    const qrStyleSelect = document.getElementById("qr_style");
-    const styleOptionsDiv = document.getElementById("styleOptions");
+function getRepeatableCode() {
+    return `
+    <div>
+                    <label for="image">Upload Image (optional):</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
 
-    if (!qrStyleSelect || !styleOptionsDiv) return; 
+                <div class="style_options_section">
+                    <div class="data_modules_options">
+                        <h2 class="data_modules_title">Data Modules</h2>
+                        <div class="data_modules_options_container" id="shape_container">
+                            <label for="data_shape">Shape:</label>
+                            <select id="data_shape" name="data_shape" required>
+                                <option value="none">None</option>
+                                <option value="square">Square</option>
+                                <option value="gapped_square">Gapped Square</option>
+                                <option value="circle">Circle</option>
+                                <option value="rounded">Rounded</option>
+                                <option value="vertical_bar">Vertical Bars</option>
+                                <option value="horizontal_bar">Horizontal Bars</option>
+                            </select>
+                        </div>
 
-    qrStyleSelect.addEventListener("change", function () {
-        const style = this.value;
-        styleOptionsDiv.innerHTML = ''; // Clear previous fields
+                        <div class="data_modules_options_container" id="style_container">
+                            <label for="qr_style">Style:</label>
+                            <select class="qr-style-select" name="qr_style_data" required>
+                                <option value="none">None</option>
+                                <option value="SolidFillColorMask">Solid Fill</option>
+                                <option value="RadialGradiantColorMask">Radial Gradiant</option>
+                                <option value="SquareGradiantColorMask">Square Gradiant</option>
+                                <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
+                                <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
+                                <option value="ImageColorMask">Image</option>
+                            </select>
+                            <div id="qr-style-options"></div>
+                        </div>
+                    </div>
 
-        if (style === 'SolidFillColorMask') {
-            styleOptionsDiv.innerHTML = `
-                <div>
-                    <label for="solid-color">Color:</label>
-                    <input type="color" id="solid-color" name="solid_color" value="#000000">
+                    <div class="inner_eye_options">
+                        <h2 class="inner_eye_title">Inner Eye</h2>
+                        <div class="inner_eye_options_container" id="inner_eye_shape_container">
+                            <label for="inner_eye_shape">Shape:</label>
+                            <select id="inner_eye_shape" name="inner_eye_shape" required>
+                                <option value="none">None</option>
+                                <option value="square">Square</option>
+                                <option value="gapped_square">Gapped Square</option>
+                                <option value="circle">Circle</option>
+                                <option value="rounded">Rounded</option>
+                                <option value="vertical_bar">Vertical Bars</option>
+                                <option value="horizontal_bar">Horizontal Bars</option>
+                            </select>
+                        </div>
+
+                        <div class="inner_eye_options_container" id="inner_eye_style_container">
+                            <label for="inner_eye_style">Style:</label>
+                            <select class="qr-style-select" name="qr_style_inner" required>
+                                <option value="none">None</option>
+                                <option value="SolidFillColorMask">Solid Fill</option>
+                                <option value="RadialGradiantColorMask">Radial Gradiant</option>
+                                <option value="SquareGradiantColorMask">Square Gradiant</option>
+                                <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
+                                <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
+                                <option value="ImageColorMask">Image</option>
+                            </select>
+                            
+                            <div id="qr-style-options"></div>
+                        </div>
+                    </div>
+
+                    <div class="outer_eye_options">
+                        <h2 class="outer_eye_title">Outer Eye</h2>
+                        <div class="outer_eye_options_container" id="outer_eye_shape_container">
+                            <label for="outer_eye_shape">Shape:</label>
+                            <select id="outer_eye_shape" name="outer_eye_shape" required>
+                                <option value="none">None</option>
+                                <option value="square">Square</option>
+                                <option value="gapped_square">Gapped Square</option>
+                                <option value="circle">Circle</option>
+                                <option value="rounded">Rounded</option>
+                                <option value="vertical_bar">Vertical Bars</option>
+                                <option value="horizontal_bar">Horizontal Bars</option>
+                            </select>
+                        </div>
+
+                        <div class="outer_eye_options_container" id="outer_eye_style_container">
+                            <label for="outer_eye_style">Style:</label>
+                            <select class="qr-style-select" name="qr_style_outer" required>
+                                <option value="none">None</option>
+                                <option value="SolidFillColorMask">Solid Fill</option>
+                                <option value="RadialGradiantColorMask">Radial Gradiant</option>
+                                <option value="SquareGradiantColorMask">Square Gradiant</option>
+                                <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
+                                <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
+                                <option value="ImageColorMask">Image</option>
+                            </select>
+                            <div id="qr-style-options"></div>
+                        </div>
+                    </div>
                 </div>
-            `;
-        } else if (
-            style === 'RadialGradiantColorMask' ||
-            style === 'SquareGradiantColorMask' ||
-            style === 'HorizontalGradiantColorMask' ||
-            style === 'VerticalGradiantColorMask'
-        ) {
-            styleOptionsDiv.innerHTML = `
-                <div>
-                    <label for="start-color">Start Color:</label>
-                    <input type="color" id="start-color" name="start_color" value="#000000">
-                </div>
-                <div>
-                    <label for="end-color">End Color:</label>
-                    <input type="color" id="end-color" name="end_color" value="#ffffff">
-                </div>
-            `;
-        } else if (style === 'ImageColorMask') {
-            styleOptionsDiv.innerHTML = `
-                <div>
-                    <label for="mask-image">Upload Color Mask Image:</label>
-                    <input type="file" id="mask-image" name="mask_image" accept="image/*">
-                </div>
-            `;
-        }
+                <button type="submit">Generate QR Code</button>
+                `
+}
+
+// TODO: Add options to change attributes of modules like radius, size, etc.
+
+function attachQrStyleListeners() {
+    const styleSelectors = document.querySelectorAll('.qr-style-select');
+
+    styleSelectors.forEach(select => {
+        const optionsContainer = select.nextElementSibling; // assumes the .qr-style-options div comes right after
+        const name = select.getAttribute('name');
+        const prefix = name.replace('qr_style_', '');
+
+        select.addEventListener("change", function () {
+            const style = this.value;
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            if (style === 'SolidFillColorMask') {
+                optionsContainer.innerHTML = `
+                    <div>
+                        <label>Color:</label>
+                        <input type="color" name="${prefix}_solid_color" value="#000000">
+                    </div>
+                `;
+            } else if (
+                style === 'RadialGradiantColorMask' ||
+                style === 'SquareGradiantColorMask' ||
+                style === 'HorizontalGradiantColorMask' ||
+                style === 'VerticalGradiantColorMask'
+            ) {
+                optionsContainer.innerHTML = `
+                    <div>
+                        <label>Start Color:</label>
+                        <input type="color" name="${prefix}_start_color" value="#000000">
+                    </div>
+                    <div>
+                        <label>End Color:</label>
+                        <input type="color" name="${prefix}_end_color" value="#ffffff">
+                    </div>
+                `;
+            } else if (style === 'ImageColorMask') {
+                optionsContainer.innerHTML = `
+                    <div>
+                        <label>Upload Color Mask Image:</label>
+                        <input type="file" name="${prefix}_mask_image" accept="image/*">
+                    </div>
+                `;
+            }
+        });
     });
 }
+
+document.addEventListener("DOMContentLoaded", attachQrStyleListeners);
+
 
 function changeForm(type) {
     let formContent = document.getElementById("form-container");
@@ -70,37 +181,8 @@ function changeForm(type) {
                     <label for="email">Email:</label>
                     <input type="email" id="email" name="email" placeholder="example@example.com" required>
                 </div>
-                <div>
-                    <label for="image">Upload Image (optional):</label>
-                    <input type="file" id="image" name="image" accept="image/*">
-                </div>
-                <div>
-                    <label for="qr-shape">QR Shape:</label>
-                    <select id="qr_shape" name="qr_shape" required>
-                        <option value="none">None</option>
-                        <option value="square">Square</option>
-                        <option value="gapped_square">Gapped Square</option>
-                        <option value="circle">Circle</option>
-                        <option value="rounded">Rounded</option>
-                        <option value="vertical_bar">Vertical Bars</option>
-                        <option value="horizontal_bar">Horizontal Bars</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="color-masks">QR Style:</label>
-                    <select id="qr_style" name="qr_style" required>
-                        <option value="none">None</option>
-                        <option value="SolidFillColorMask">Solid Fill</option>
-                        <option value="RadialGradiantColorMask">Radial Gradiant</option>
-                        <option value="SquareGradiantColorMask">Square Gradiant</option>
-                        <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
-                        <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
-                        <option value="ImageColorMask">Image</option>
-                    </select>
+                ${getRepeatableCode()}
 
-                    <div id="styleOptions"></div>
-                </div>
-                <button type="submit">Generate QR Code</button>
             </form>
         `;
     } else if (type == 'link') {
@@ -110,38 +192,8 @@ function changeForm(type) {
                     <label for="link">Enter Link:</label>
                     <input type="url" id="link" name="link" required>
                 </div>
-                <div>
-                    <label for="image">Upload Image (optional):</label>
-                    <input type="file" id="image" name="image" accept="image/*">
-                </div>
-                <div>
-                    <label for="qr-shape">QR Shape:</label>
-                    <select id="qr_shape" name="qr_shape" required>
-                        <option value="none">None</option>
-                        <option value="square">Square</option>
-                        <option value="gapped_square">Gapped Square</option>
-                        <option value="circle">Circle</option>
-                        <option value="rounded">Rounded</option>
-                        <option value="vertical_bar">Vertical Bars</option>
-                        <option value="horizontal_bar">Horizontal Bars</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="color-masks">QR Style:</label>
-                    <select id="qr_style" name="qr_style" required>
-                        <option value="none">None</option>
-                        <option value="SolidFillColorMask">Solid Fill</option>
-                        <option value="RadialGradiantColorMask">Radial Gradiant</option>
-                        <option value="SquareGradiantColorMask">Square Gradiant</option>
-                        <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
-                        <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
-                        <option value="ImageColorMask">Image</option>
-                    </select>
-
-                    <div id="styleOptions"></div>
-                </div>
-                <button type="submit">Generate QR Code</button>
-            </form>
+                ${getRepeatableCode()}
+                </form>
         `;
     } else if (type == 'wifi') {
         formContent.innerHTML = `
@@ -163,37 +215,7 @@ function changeForm(type) {
                         <option value="nopass">No Password</option>
                     </select>
                 </div>
-                <div>
-                    <label for="image">Upload Image (optional):</label>
-                    <input type="file" id="image" name="image" accept="image/*">
-                </div>
-                <div>
-                    <label for="qr-shape">QR Shape:</label>
-                    <select id="qr_shape" name="qr_shape" required>
-                        <option value="none">None</option>
-                        <option value="square">Square</option>
-                        <option value="gapped_square">Gapped Square</option>
-                        <option value="circle">Circle</option>
-                        <option value="rounded">Rounded</option>
-                        <option value="vertical_bar">Vertical Bars</option>
-                        <option value="horizontal_bar">Horizontal Bars</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="color-masks">QR Style:</label>
-                    <select id="qr_style" name="qr_style" required>
-                        <option value="none">None</option>
-                        <option value="SolidFillColorMask">Solid Fill</option>
-                        <option value="RadialGradiantColorMask">Radial Gradiant</option>
-                        <option value="SquareGradiantColorMask">Square Gradiant</option>
-                        <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
-                        <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
-                        <option value="ImageColorMask">Image</option>
-                    </select>
-
-                    <div id="styleOptions"></div>
-                </div>
-                <button type="submit">Generate QR Code</button>
+                ${getRepeatableCode()}
             </form>
         `;
     } else if (type == 'calendar') {
@@ -231,37 +253,7 @@ function changeForm(type) {
                         <option value="Europe/Paris">Europe/Paris</option>
                     </select>
                 </div>
-                <div>
-                    <label for="image">Upload Image (optional):</label>
-                    <input type="file" id="image" name="image" accept="image/*">
-                </div>
-                <div>
-                    <label for="qr-shape">QR Shape:</label>
-                    <select id="qr_shape" name="qr_shape" required>
-                        <option value="none">None</option>
-                        <option value="square">Square</option>
-                        <option value="gapped_square">Gapped Square</option>
-                        <option value="circle">Circle</option>
-                        <option value="rounded">Rounded</option>
-                        <option value="vertical_bar">Vertical Bars</option>
-                        <option value="horizontal_bar">Horizontal Bars</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="color-masks">QR Style:</label>
-                    <select id="qr_style" name="qr_style" required>
-                        <option value="none">None</option>
-                        <option value="SolidFillColorMask">Solid Fill</option>
-                        <option value="RadialGradiantColorMask">Radial Gradiant</option>
-                        <option value="SquareGradiantColorMask">Square Gradiant</option>
-                        <option value="HorizontalGradiantColorMask">Horizontal Gradiant</option>
-                        <option value="VerticalGradiantColorMask">Vertical Gradiant</option>
-                        <option value="ImageColorMask">Image</option>
-                    </select>
-
-                    <div id="styleOptions"></div>
-                </div>
-                <button type="submit">Generate QR Code</button>
+                ${getRepeatableCode()}
             </form>
         `;
     }
@@ -269,5 +261,5 @@ function changeForm(type) {
     //     formContent.innerHTML = ''
     // }
 
-    attachQrStyleListener();
+    attachQrStyleListeners();
 }

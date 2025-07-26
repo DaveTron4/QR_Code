@@ -70,29 +70,55 @@ def get_color_mask(qr_style, solid_color=None, start_color=None, end_color=None,
     else:
         raise ValueError(f"Invalid or missing parameters for color mask style: {qr_style}")
 
-def style_inner_eyes(img):
-  img_size = img.size[0]
-  eye_size = 70 #default
-  quiet_zone = 40 #default
-  mask = Image.new('L', img.size, 0)
-  draw = ImageDraw.Draw(mask)
-  draw.rectangle((60, 60, 90, 90), fill=255) #top left eye
-  draw.rectangle((img_size-90, 60, img_size-60, 90), fill=255) #top right eye
-  draw.rectangle((60, img_size-90, 90, img_size-60), fill=255) #bottom left eye
-  return mask
 
-def style_outer_eyes(img):
-  img_size = img.size[0]
-  eye_size = 70 #default
-  quiet_zone = 40 #default
-  mask = Image.new('L', img.size, 0)
-  draw = ImageDraw.Draw(mask)
-  draw.rectangle((40, 40, 110, 110), fill=255) #top left eye
-  draw.rectangle((img_size-110, 40, img_size-40, 110), fill=255) #top right eye
-  draw.rectangle((40, img_size-110, 110, img_size-40), fill=255) #bottom left eye
-  draw.rectangle((60, 60, 90, 90), fill=0) #top left eye
-  draw.rectangle((img_size-90, 60, img_size-60, 90), fill=0) #top right eye
-  draw.rectangle((60, img_size-90, 90, img_size-60), fill=0) #bottom left eye  
-  return mask  
+def style_inner_eyes(img, box_size=20, quiet_zone=5):
+    padding = quiet_zone * box_size
+    inner_eye_size = 3 * box_size
+    offset = 2 * box_size  # offset from outer eye to center 3x3
+
+    img_size = img.size[0]
+    mask = Image.new('L', img.size, 0)
+    draw = ImageDraw.Draw(mask)
+
+    def draw_inner(x, y):
+        draw.rectangle(
+            (x + offset, y + offset,
+             x + offset + inner_eye_size - 1, y + offset + inner_eye_size - 1),
+            fill=255
+        )
+
+    # Top-left
+    draw_inner(padding, padding)
+    # Top-right
+    draw_inner(img_size - padding - 7 * box_size, padding)
+    # Bottom-left
+    draw_inner(padding, img_size - padding - 7 * box_size)
+
+    return mask
 
 
+def style_outer_eyes(img, box_size=20, quiet_zone=5):
+    padding = quiet_zone * box_size
+    outer_size = 7 * box_size
+    inner_size = 3 * box_size
+    inner_offset = 2 * box_size
+
+    img_size = img.size[0]
+    mask = Image.new('L', img.size, 0)
+    draw = ImageDraw.Draw(mask)
+
+    def draw_outer(x, y):
+        # Full 7x7 outer
+        draw.rectangle((x, y, x + outer_size - 1, y + outer_size - 1), fill=255)
+        # Remove inner 3x3
+        draw.rectangle(
+            (x + inner_offset, y + inner_offset,
+             x + inner_offset + inner_size - 1, y + inner_offset + inner_size - 1),
+            fill=0
+        )
+
+    draw_outer(padding, padding)
+    draw_outer(img_size - padding - outer_size, padding)
+    draw_outer(padding, img_size - padding - outer_size)
+
+    return mask
