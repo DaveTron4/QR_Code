@@ -47,41 +47,37 @@ def generate_vcard_qr(name, phone, email, data_shape, qr_style_data, inner_eye_s
     if image_path:
         temp_image_path = image_configuration(image_path)
 
-    # Get the module drawer and color mask based on the provided styles
-
     print(f"Data Shape: {data_shape}, Data Style: {qr_style_data}, Inner Eye Shape: {inner_eye_shape}, Inner Eye Style: {inner_eye_style}, Outer Eye Shape: {outer_eye_shape}, Outer Eye Style: {outer_eye_style}")
     print(f"Data Solid Color: {data_solid_color}, Data Start Color: {data_start_color}, Data End Color: {data_end_color}, Data Mask Image Path: {data_mask_image_path}")
     print(f"Inner Solid Color: {inner_solid_color}, Inner Start Color: {inner_start_color}, Inner End Color: {inner_end_color}, Inner Mask Image Path: {inner_mask_image_path}")
     print(f"Outer Solid Color: {outer_solid_color}, Outer Start Color: {outer_start_color}, Outer End Color: {outer_end_color}, Outer Mask Image Path: {outer_mask_image_path}")
 
+    # Module drawer and color mask for the data
     module_drawer_data = get_drawer(data_shape)
     color_mask_data = get_color_mask(qr_style_data, data_solid_color, data_start_color, data_end_color, data_mask_image_path)
 
+    # Module drawer and color mask for the inner and outer eyes
     module_drawer_inner = get_drawer(inner_eye_shape)
     color_mask_inner = get_color_mask(inner_eye_style, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path)
-
     module_drawer_outer = get_drawer(outer_eye_shape)
     color_mask_outer = get_color_mask(outer_eye_style, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
 
     # Generate QR Code
-    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=4)
+    qr = qrcode.QRCode(version=None, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=15, border=5)
     qr.add_data(seriealized_vcard)
     qr.make(fit=True)
 
     qr_inner_eyes_img = qr.make_image(image_factory=StyledPilImage,
-                            eye_drawer=VerticalBarsDrawer(),
-                            color_mask=SolidFillColorMask(front_color=(182, 174, 211))).convert("RGB")
-
+                            eye_drawer=module_drawer_inner,
+                            color_mask=color_mask_inner).convert("RGB")
     qr_outer_eyes_img = qr.make_image(image_factory=StyledPilImage,
-                                eye_drawer=HorizontalBarsDrawer(),
-                                color_mask=SolidFillColorMask(front_color=(63, 42, 86))).convert("RGB")
-
+                                eye_drawer=module_drawer_outer,
+                                color_mask=color_mask_outer).convert("RGB")
 
     if image_path:
         qr_img = qr.make_image(image_factory=StyledPilImage, embeded_image_path=temp_image_path, module_drawer=module_drawer_data, color_mask=color_mask_data).convert("RGB")
     else:
         qr_img = qr.make_image(image_factory=StyledPilImage, module_drawer=module_drawer_data, color_mask=color_mask_data).convert("RGB")
-
 
     # THIS IS IMPORTANT : without this an error is shown
     # Save the QR Code to the 'output' directory
@@ -90,8 +86,8 @@ def generate_vcard_qr(name, phone, email, data_shape, qr_style_data, inner_eye_s
         os.makedirs(output_dir)  # Create the directory if it doesn't exist
     
     # Create inner and outer eye masks
-    inner_eye_mask = style_inner_eyes(qr_img, box_size=20, quiet_zone=5)
-    outer_eye_mask = style_outer_eyes(qr_img, box_size=20, quiet_zone=5)
+    inner_eye_mask = style_inner_eyes(qr_img, box_size=15, quiet_zone=5)
+    outer_eye_mask = style_outer_eyes(qr_img, box_size=15, quiet_zone=5)
 
     # Start with the base image
     final_image = qr_img.copy()
@@ -106,7 +102,7 @@ def generate_vcard_qr(name, phone, email, data_shape, qr_style_data, inner_eye_s
     path = os.path.join(output_dir, qr_code_filename)
 
     # Save the QR code image
-    qr_img.save(path, format='PNG')  # You can save the QR code in PNG format since it doesn't need transparency
+    final_image.save(path, format='PNG')  # You can save the QR code in PNG format since it doesn't need transparency
 
     # Clean up the temporary image file
     if image_path:

@@ -1,4 +1,4 @@
-from flask import render_template, request, send_file, abort, make_response
+from flask import render_template, request, send_file, render_template_string
 from io import BytesIO
 import os
 from uuid import uuid4
@@ -9,6 +9,7 @@ from static.handlers.link_handler import link_handler
 from static.handlers.wifi_handler import wifi_handler
 from static.handlers.calendar_handler import calendar_handler
 from static.handlers.date_time_handler import handle_date_time
+from static.handlers.qr_cleanup_handler import clear_output_folder
 
 app = configuration()
 
@@ -77,6 +78,9 @@ def generate_qr_vcard():
 @app.route("/generate_qr_link", methods=["GET", "POST"])
 def generate_qr_link():
     if request.method == "POST":
+        # Clear the output folder before processing new QR codes
+        clear_output_folder(app)
+
         # Get user input from form
         link = request.form.get("link")
         image_file = request.files.get("image")
@@ -133,23 +137,46 @@ def generate_qr_wifi():
         password = request.form.get("password")
         encryption = request.form.get("encryption")
         image_file = request.files.get("image")
+
+        # Inputs for QR Data
         data_shape = request.form.get("data_shape")
         qr_style_data = request.form.get("qr_style_data")
-
+        # Inputs for QR Inner eyes
+        inner_eye_shape = request.form.get("inner_eye_shape")
+        inner_eye_style = request.form.get("qr_style_inner")
+        # Inputs for QR Outer eyes
+        outer_eye_shape = request.form.get("outer_eye_shape")
+        outer_eye_style = request.form.get("qr_style_outer")
+        
         # Handle dynamic inputs
-        solid_color = request.form.get("solid_color")
-        start_color = request.form.get("start_color")
-        end_color = request.form.get("end_color")
-        mask_image_file = request.files.get("mask_image")
+        # DATA
+        data_solid_color = request.form.get("data_solid_color")
+        data_start_color = request.form.get("data_start_color")
+        data_end_color = request.form.get("data_end_color")
+        data_mask_image_file = request.files.get("data_mask_image")
+
+        # INNER
+        inner_solid_color = request.form.get("inner_solid_color")
+        inner_start_color = request.form.get("inner_start_color")
+        inner_end_color = request.form.get("inner_end_color")
+        inner_mask_image_file = request.files.get("inner_mask_image")
+
+        # OUTER
+        outer_solid_color = request.form.get("outer_solid_color")
+        outer_start_color = request.form.get("outer_start_color")
+        outer_end_color = request.form.get("outer_end_color")
+        outer_mask_image_file = request.files.get("outer_mask_image")
 
         # Handle image upload
         image_path = image_upload(image_file, app)
 
         # Upload optional mask image (used for ImageColorMask)
-        mask_image_path = image_upload(mask_image_file, app)
+        data_mask_image_path = image_upload(data_mask_image_file, app)
+        inner_mask_image_path = image_upload(inner_mask_image_file, app)
+        outer_mask_image_path = image_upload(outer_mask_image_file, app)
 
         # Handle wifi qr creation
-        qr_code_url = wifi_handler(ssid, password, encryption, data_shape, qr_style_data, image_path, solid_color, start_color, end_color, mask_image_path)
+        qr_code_url = wifi_handler(ssid, password, encryption, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
         filename = os.path.basename(qr_code_url)
 
         return render_template("index.html", qr_code_url = qr_code_url, filename=filename, uuid=uuid4(), active_form = "wifi")
@@ -165,32 +192,52 @@ def generate_qr_calendar():
         duration = request.form.get("duration")
         description = request.form.get("description")
         timezone = request.form.get("timezone")
-        data_shape = request.form.get("data_shape")
-        qr_style_data = request.form.get("qr_style_data")
-
-        # Handle dynamic inputs
-        solid_color = request.form.get("solid_color")
-        start_color = request.form.get("start_color")
-        end_color = request.form.get("end_color")
-        mask_image_file = request.files.get("mask_image")
-
+        image_file = request.files.get("image")
+        
         # Split the date and time
         date, time = raw_datetime.split('T')
-
         # Handle the date and time along with duration
         dtstart, dtend = handle_date_time(date, time, timezone, duration)
+        
+        # Inputs for QR Data
+        data_shape = request.form.get("data_shape")
+        qr_style_data = request.form.get("qr_style_data")
+        # Inputs for QR Inner eyes
+        inner_eye_shape = request.form.get("inner_eye_shape")
+        inner_eye_style = request.form.get("qr_style_inner")
+        # Inputs for QR Outer eyes
+        outer_eye_shape = request.form.get("outer_eye_shape")
+        outer_eye_style = request.form.get("qr_style_outer")
+        
+        # Handle dynamic inputs
+        # DATA
+        data_solid_color = request.form.get("data_solid_color")
+        data_start_color = request.form.get("data_start_color")
+        data_end_color = request.form.get("data_end_color")
+        data_mask_image_file = request.files.get("data_mask_image")
 
-        # Get the uploaded image file
-        image_file = request.files.get("image")
+        # INNER
+        inner_solid_color = request.form.get("inner_solid_color")
+        inner_start_color = request.form.get("inner_start_color")
+        inner_end_color = request.form.get("inner_end_color")
+        inner_mask_image_file = request.files.get("inner_mask_image")
+
+        # OUTER
+        outer_solid_color = request.form.get("outer_solid_color")
+        outer_start_color = request.form.get("outer_start_color")
+        outer_end_color = request.form.get("outer_end_color")
+        outer_mask_image_file = request.files.get("outer_mask_image")
 
         # Handle image upload
         image_path = image_upload(image_file, app)
 
         # Upload optional mask image (used for ImageColorMask)
-        mask_image_path = image_upload(mask_image_file, app)
+        data_mask_image_path = image_upload(data_mask_image_file, app)
+        inner_mask_image_path = image_upload(inner_mask_image_file, app)
+        outer_mask_image_path = image_upload(outer_mask_image_file, app)
 
         # Pass the duration as part of the function call
-        qr_code_url = calendar_handler(event_name, dtstart, dtend, location, description, data_shape, qr_style_data, image_path, solid_color, start_color, end_color, mask_image_path)
+        qr_code_url = calendar_handler(event_name, dtstart, dtend, location, description, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
         filename = os.path.basename(qr_code_url)
 
         return render_template("index.html", qr_code_url=qr_code_url, filename=filename, uuid=uuid4(), active_form="calendar")
@@ -208,7 +255,16 @@ def download_qr(filename):
     file_path = os.path.join(output_dir, filename)
 
     if not os.path.exists(file_path):
-        abort(404)
+        render_template_string("""
+        <html>
+        <head><title>QR Code Not Found</title></head>
+        <body style="font-family: Arial; text-align: center; margin-top: 50px;">
+            <h2>Oops! This QR code is no longer available.</h2>
+            <p>It may have already been downloaded or expired.</p>
+            <a href="/">Go back to Home</a>
+        </body>
+        </html>
+        """), 404
 
     try:
         # Read the file into memory
@@ -231,7 +287,16 @@ def download_qr(filename):
         )
     except Exception as e:
         app.logger.error(f"Download error: {e}")
-        abort(500)
+        return render_template_string("""
+        <html>
+        <head><title>Error</title></head>
+        <body style="font-family: Arial; text-align: center; margin-top: 50px;">
+            <h2>Something went wrong while downloading your QR code.</h2>
+            <p>Please try again later.</p>
+            <a href="/">Go back to Home</a>
+        </body>
+        </html>
+        """), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
