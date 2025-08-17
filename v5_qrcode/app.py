@@ -3,14 +3,14 @@ from flask import redirect, render_template, request, send_file, render_template
 from io import BytesIO
 import os
 from uuid import uuid4
-from static.handlers.vcard_handler import vcard_handler
-from static.handlers.configuration_handler import configuration, get_user_folders
-from static.handlers.image_upload_handler import image_upload
-from static.handlers.link_handler import link_handler
-from static.handlers.wifi_handler import wifi_handler
-from static.handlers.calendar_handler import calendar_handler
-from static.handlers.date_time_handler import handle_date_time
-from static.handlers.qr_cleanup_handler import clear_output_folder
+from handlers.vcard_handler import vcard_handler
+from handlers.configuration_handler import configuration, get_user_folders
+from handlers.image_upload_handler import image_upload
+from handlers.link_handler import link_handler
+from handlers.wifi_handler import wifi_handler
+from handlers.calendar_handler import calendar_handler
+from handlers.date_time_handler import handle_date_time
+from handlers.qr_cleanup_handler import clear_output_folder
 
 #TODO NOTES:
 #! - Add a session timeout to clear the session and session folder after 30 minutes of inactivity

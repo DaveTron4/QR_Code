@@ -1,8 +1,8 @@
 import qrcode, os, uuid
 from qrcode.image.styledpil import StyledPilImage
-from static.handlers.image_configuration_handler import image_configuration
-from static.handlers.qr_styles_handler import get_drawer, get_color_mask
-from static.handlers.qr_styles_handler import style_inner_eyes, style_outer_eyes
+from handlers.image_configuration_handler import image_configuration
+from handlers.qr_styles_handler import get_drawer, get_color_mask
+from handlers.qr_styles_handler import style_inner_eyes, style_outer_eyes
 
 def generate_wifi_qr(ssid, password, encryption, output_folder, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path=None, data_solid_color=None, data_start_color=None, data_end_color=None, data_mask_image_path=None, inner_solid_color=None, inner_start_color=None, inner_end_color=None, inner_mask_image_path=None, outer_solid_color=None, outer_start_color=None, outer_end_color=None, outer_mask_image_path=None):
     if encryption == "None":
