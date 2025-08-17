@@ -7,3 +7,8 @@ output/
 .vscode/
 
 *__pycache__/
+
+v1_qrcode/
+v2_qrcode/
+v3_qrcode/
+v4_qrcode/
