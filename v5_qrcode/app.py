@@ -1,9 +1,10 @@
-from flask import render_template, request, send_file, render_template_string
+from datetime import timedelta, datetime
+from flask import redirect, render_template, request, send_file, render_template_string, session, url_for
 from io import BytesIO
 import os
 from uuid import uuid4
 from static.handlers.vcard_handler import vcard_handler
-from static.handlers.configuration_handler import configuration
+from static.handlers.configuration_handler import configuration, get_user_folders
 from static.handlers.image_upload_handler import image_upload
 from static.handlers.link_handler import link_handler
 from static.handlers.wifi_handler import wifi_handler
@@ -11,187 +12,301 @@ from static.handlers.calendar_handler import calendar_handler
 from static.handlers.date_time_handler import handle_date_time
 from static.handlers.qr_cleanup_handler import clear_output_folder
 
-app = configuration()
+#TODO NOTES:
+#! - Add a session timeout to clear the session and session folder after 30 minutes of inactivity
+#TODO - Add a download all button that zips the output folder and allows the user to download all the qr codes they have generated in their session
+#TODO - Add a section that shows the user the qr codes they have generated in their session and when clicked on the qr code it shows a larger version of the qr code and a download button and delete button
+#TODO - Add default active form
 
+app = configuration()
+app.permanent_session_lifetime = app.config.get("PERMANENT_SESSION_LIFETIME", timedelta(minutes=30))
+
+#! Save form data to session
+def save_form_data():
+    # Create or update a dictionary in session
+    if "form_data" not in session:
+        session["form_data"] = {}
+
+    # Update the form_data dictionary with submitted values
+    for key, value in request.form.items():
+        session["form_data"][key] = value
+
+#! This will be called once when the app starts serving a new session
+@app.before_request
+def setup_user_folder():
+    if "user_folder" not in session:
+        upload_folder, output_folder = get_user_folders()
+        session["user_output_folder"] = output_folder
+        session["user_upload_folder"] = upload_folder
+
+#! This will be called before every request to check for session timeout
+@app.before_request
+def check_session_timeout():
+    now = datetime.now()
+    last_active = session.get("last_active")
+
+    if last_active:
+        elapsed = (now - datetime.fromisoformat(last_active)).total_seconds()
+        if elapsed > 30 * 60:  # 30 minutes
+            # Delete user folder if exists
+            if "user_output_folder" in session:
+                clear_output_folder(app, session["user_output_folder"])
+            session.clear()
+
+    # Update activity timestamp
+    session["last_active"] = now.isoformat()
+
+#! Route for main page
 @app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template("index.html")
+    session["active_form"] = "default"
+    form_data = session.get("form_data", {})
+    return render_template("index.html", form_data=form_data, active_form=session.get("active_form", "default"))
 
 #! Route for getting input from vcard form
 @app.route("/generate_qr_vcard", methods=["GET", "POST"])
 def generate_qr_vcard():
     if request.method == "POST":
-        # Get user input from form
-        name = request.form.get("name")
-        phone = request.form.get("phone")
-        email = request.form.get("email")
-        image_file = request.files.get("image")
-        # Inputs for QR Data
-        data_shape = request.form.get("data_shape")
-        qr_style_data = request.form.get("qr_style_data")
-        # Inputs for QR Inner eyes
-        inner_eye_shape = request.form.get("inner_eye_shape")
-        inner_eye_style = request.form.get("qr_style_inner")
-        # Inputs for QR Outer eyes
-        outer_eye_shape = request.form.get("outer_eye_shape")
-        outer_eye_style = request.form.get("qr_style_outer")
-        
+        # Save form data to session
+        save_form_data()
 
+        # Set the form type in session
+        session["active_form"] = "vcard"
+
+        # Retrieve form data from session
+        form_data = session.get("form_data", {})
+
+        # Get user upload and output folders from session
+        upload_folder = session["user_upload_folder"]
+        output_folder = session["user_output_folder"]
+
+        # Get user input from form
+        name = form_data.get("name")
+        phone = form_data.get("phone")
+        email = form_data.get("email")
+
+        # Get the uploaded image file from the request
+        image_file = request.files.get("image")
+
+        # Inputs for QR Data
+        data_shape = form_data.get("data_shape")
+        qr_style_data = form_data.get("qr_style_data")
+        # Inputs for QR Inner eyes
+        inner_eye_shape = form_data.get("inner_eye_shape")
+        inner_eye_style = form_data.get("qr_style_inner")
+        # Inputs for QR Outer eyes
+        outer_eye_shape = form_data.get("outer_eye_shape")
+        outer_eye_style = form_data.get("qr_style_outer")
+        
         # Handle dynamic inputs
         # DATA
-        data_solid_color = request.form.get("data_solid_color")
-        data_start_color = request.form.get("data_start_color")
-        data_end_color = request.form.get("data_end_color")
+        data_solid_color = form_data.get("data_solid_color")
+        data_start_color = form_data.get("data_start_color")
+        data_end_color = form_data.get("data_end_color")
         data_mask_image_file = request.files.get("data_mask_image")
 
         # INNER
-        inner_solid_color = request.form.get("inner_solid_color")
-        inner_start_color = request.form.get("inner_start_color")
-        inner_end_color = request.form.get("inner_end_color")
+        inner_solid_color = form_data.get("inner_solid_color")
+        inner_start_color = form_data.get("inner_start_color")
+        inner_end_color = form_data.get("inner_end_color")
         inner_mask_image_file = request.files.get("inner_mask_image")
 
         # OUTER
-        outer_solid_color = request.form.get("outer_solid_color")
-        outer_start_color = request.form.get("outer_start_color")
-        outer_end_color = request.form.get("outer_end_color")
+        outer_solid_color = form_data.get("outer_solid_color")
+        outer_start_color = form_data.get("outer_start_color")
+        outer_end_color = form_data.get("outer_end_color")
         outer_mask_image_file = request.files.get("outer_mask_image")
-
         
         # Handle image upload
-        image_path = image_upload(image_file, app)
+        image_path = image_upload(image_file, upload_folder)
 
         # Upload optional mask image (used for ImageColorMask)
-        data_mask_image_path = image_upload(data_mask_image_file, app)
-        inner_mask_image_path = image_upload(inner_mask_image_file, app)
-        outer_mask_image_path = image_upload(outer_mask_image_file, app)
+        data_mask_image_path = image_upload(data_mask_image_file, upload_folder)
+        inner_mask_image_path = image_upload(inner_mask_image_file, upload_folder)
+        outer_mask_image_path = image_upload(outer_mask_image_file, upload_folder)
 
         # Handle vcard creation
-        qr_code_url = vcard_handler(name, phone, email, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
+        full_path = vcard_handler(name, phone, email, output_folder, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
+        qr_code_url  = full_path.split("static", 1)[1]
+        qr_code_url = "/static" + qr_code_url.replace("\\", "/")
         filename = os.path.basename(qr_code_url)
 
 
+        print(f"Session vcard data: {form_data}")
+
+
         # Serve the QR code to the user
-        return render_template("index.html", qr_code_url=qr_code_url, filename=filename, uuid=uuid4(), active_form = "vcard")
+        return render_template("index.html", qr_code_url=qr_code_url, filename=filename, form_data=form_data, uuid=uuid4(), active_form=session.get("active_form", "default"))
 
 
 #! Route for getting input from link form
 @app.route("/generate_qr_link", methods=["GET", "POST"])
 def generate_qr_link():
     if request.method == "POST":
-        # Clear the output folder before processing new QR codes
-        clear_output_folder(app)
+        # Save form data to session
+        save_form_data()
+
+        # Set the form type in session
+        session["active_form"] = "link"
+
+        # Retrieve form data from session
+        form_data = session.get("form_data", {})
+
+        # Get user upload and output folders from session
+        upload_folder = session["user_upload_folder"]
+        output_folder = session["user_output_folder"]
 
         # Get user input from form
-        link = request.form.get("link")
+        link = form_data.get("link")
+
+        # Get the uploaded image file from the request
         image_file = request.files.get("image")
 
         # Inputs for QR Data
-        data_shape = request.form.get("data_shape")
-        qr_style_data = request.form.get("qr_style_data")
+        data_shape = form_data.get("data_shape")
+        qr_style_data = form_data.get("qr_style_data")
         # Inputs for QR Inner eyes
-        inner_eye_shape = request.form.get("inner_eye_shape")
-        inner_eye_style = request.form.get("qr_style_inner")
+        inner_eye_shape = form_data.get("inner_eye_shape")
+        inner_eye_style = form_data.get("qr_style_inner")
         # Inputs for QR Outer eyes
-        outer_eye_shape = request.form.get("outer_eye_shape")
-        outer_eye_style = request.form.get("qr_style_outer")
+        outer_eye_shape = form_data.get("outer_eye_shape")
+        outer_eye_style = form_data.get("qr_style_outer")
         
         # Handle dynamic inputs
         # DATA
-        data_solid_color = request.form.get("data_solid_color")
-        data_start_color = request.form.get("data_start_color")
-        data_end_color = request.form.get("data_end_color")
+        data_solid_color = form_data.get("data_solid_color")
+        data_start_color = form_data.get("data_start_color")
+        data_end_color = form_data.get("data_end_color")
         data_mask_image_file = request.files.get("data_mask_image")
 
         # INNER
-        inner_solid_color = request.form.get("inner_solid_color")
-        inner_start_color = request.form.get("inner_start_color")
-        inner_end_color = request.form.get("inner_end_color")
+        inner_solid_color = form_data.get("inner_solid_color")
+        inner_start_color = form_data.get("inner_start_color")
+        inner_end_color = form_data.get("inner_end_color")
         inner_mask_image_file = request.files.get("inner_mask_image")
 
         # OUTER
-        outer_solid_color = request.form.get("outer_solid_color")
-        outer_start_color = request.form.get("outer_start_color")
-        outer_end_color = request.form.get("outer_end_color")
+        outer_solid_color = form_data.get("outer_solid_color")
+        outer_start_color = form_data.get("outer_start_color")
+        outer_end_color = form_data.get("outer_end_color")
         outer_mask_image_file = request.files.get("outer_mask_image")
 
         # Handle image upload
-        image_path = image_upload(image_file, app)
+        image_path = image_upload(image_file, upload_folder)
 
         # Upload optional mask image (used for ImageColorMask)
-        data_mask_image_path = image_upload(data_mask_image_file, app)
-        inner_mask_image_path = image_upload(inner_mask_image_file, app)
-        outer_mask_image_path = image_upload(outer_mask_image_file, app)
+        data_mask_image_path = image_upload(data_mask_image_file, upload_folder)
+        inner_mask_image_path = image_upload(inner_mask_image_file, upload_folder)
+        outer_mask_image_path = image_upload(outer_mask_image_file, upload_folder)
 
         # Handle link qr creation
-        qr_code_url = link_handler(link, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
+        full_path = link_handler(link, output_folder, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
+        qr_code_url  = full_path.split("static", 1)[1]
+        qr_code_url = "/static" + qr_code_url.replace("\\", "/")
         filename = os.path.basename(qr_code_url)
 
-        return render_template("index.html", qr_code_url = qr_code_url, filename=filename, uuid=uuid4(), active_form = "link")
+
+        print(f"Session link data: {form_data}")
+
+
+        return render_template("index.html", qr_code_url = qr_code_url, filename=filename, form_data=form_data, uuid=uuid4(), active_form=session.get("active_form", "default"))
 
 #! Route for getting imput from wifi form
 @app.route("/generate_qr_wifi", methods=["GET", "POST"])
 def generate_qr_wifi():
     if request.method == "POST":
+        # Save form data to session
+        save_form_data()
+
+        # Set the form type in session
+        session["active_form"] = "wifi"
+
+        # Retrieve form data from session
+        form_data = session.get("form_data", {})
+
+        # Get user upload and output folders from session
+        upload_folder = session["user_upload_folder"]
+        output_folder = session["user_output_folder"]
+
         # Get user input from form
-        ssid = request.form.get("ssid")
-        password = request.form.get("password")
-        encryption = request.form.get("encryption")
+        ssid = form_data.get("ssid")
+        password = form_data.get("password")
+        encryption = form_data.get("encryption")
         image_file = request.files.get("image")
 
         # Inputs for QR Data
-        data_shape = request.form.get("data_shape")
-        qr_style_data = request.form.get("qr_style_data")
+        data_shape = form_data.get("data_shape")
+        qr_style_data = form_data.get("qr_style_data")
         # Inputs for QR Inner eyes
-        inner_eye_shape = request.form.get("inner_eye_shape")
-        inner_eye_style = request.form.get("qr_style_inner")
+        inner_eye_shape = form_data.get("inner_eye_shape")
+        inner_eye_style = form_data.get("qr_style_inner")
         # Inputs for QR Outer eyes
-        outer_eye_shape = request.form.get("outer_eye_shape")
-        outer_eye_style = request.form.get("qr_style_outer")
+        outer_eye_shape = form_data.get("outer_eye_shape")
+        outer_eye_style = form_data.get("qr_style_outer")
         
         # Handle dynamic inputs
         # DATA
-        data_solid_color = request.form.get("data_solid_color")
-        data_start_color = request.form.get("data_start_color")
-        data_end_color = request.form.get("data_end_color")
+        data_solid_color = form_data.get("data_solid_color")
+        data_start_color = form_data.get("data_start_color")
+        data_end_color = form_data.get("data_end_color")
         data_mask_image_file = request.files.get("data_mask_image")
 
         # INNER
-        inner_solid_color = request.form.get("inner_solid_color")
-        inner_start_color = request.form.get("inner_start_color")
-        inner_end_color = request.form.get("inner_end_color")
+        inner_solid_color = form_data.get("inner_solid_color")
+        inner_start_color = form_data.get("inner_start_color")
+        inner_end_color = form_data.get("inner_end_color")
         inner_mask_image_file = request.files.get("inner_mask_image")
 
         # OUTER
-        outer_solid_color = request.form.get("outer_solid_color")
-        outer_start_color = request.form.get("outer_start_color")
-        outer_end_color = request.form.get("outer_end_color")
+        outer_solid_color = form_data.get("outer_solid_color")
+        outer_start_color = form_data.get("outer_start_color")
+        outer_end_color = form_data.get("outer_end_color")
         outer_mask_image_file = request.files.get("outer_mask_image")
 
         # Handle image upload
-        image_path = image_upload(image_file, app)
+        image_path = image_upload(image_file, upload_folder)
 
         # Upload optional mask image (used for ImageColorMask)
-        data_mask_image_path = image_upload(data_mask_image_file, app)
-        inner_mask_image_path = image_upload(inner_mask_image_file, app)
-        outer_mask_image_path = image_upload(outer_mask_image_file, app)
+        data_mask_image_path = image_upload(data_mask_image_file, upload_folder)
+        inner_mask_image_path = image_upload(inner_mask_image_file, upload_folder)
+        outer_mask_image_path = image_upload(outer_mask_image_file, upload_folder)
 
         # Handle wifi qr creation
-        qr_code_url = wifi_handler(ssid, password, encryption, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
+        full_path = wifi_handler(ssid, password, encryption, output_folder, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
+        qr_code_url  = full_path.split("static", 1)[1]
+        qr_code_url = "/static" + qr_code_url.replace("\\", "/")
         filename = os.path.basename(qr_code_url)
 
-        return render_template("index.html", qr_code_url = qr_code_url, filename=filename, uuid=uuid4(), active_form = "wifi")
+
+        print(f"Session wifi data: {form_data}")
+
+
+        return render_template("index.html", qr_code_url = qr_code_url, filename=filename, form_data=form_data, uuid=uuid4(), active_form=session.get("active_form", "default"))
     
 #! Route for getting imput from calendar form
 @app.route("/generate_qr_calendar", methods=["GET", "POST"])
 def generate_qr_calendar():
     if request.method == "POST":
+        # Save form data to session
+        save_form_data()
+
+        # Set the form type in session
+        session["active_form"] = "calendar"
+
+        # Retrieve form data from session
+        form_data = session.get("form_data", {})
+
+        # Get user upload and output folders from session
+        upload_folder = session["user_upload_folder"]
+        output_folder = session["user_output_folder"]
+
         # Get user input from form
-        event_name = request.form.get("event")
+        event_name = form_data.get("event")
         raw_datetime = request.form['datetime']
-        location = request.form.get("location")
-        duration = request.form.get("duration")
-        description = request.form.get("description")
-        timezone = request.form.get("timezone")
+        location = form_data.get("location")
+        duration = form_data.get("duration")
+        description = form_data.get("description")
+        timezone = form_data.get("timezone")
         image_file = request.files.get("image")
         
         # Split the date and time
@@ -200,59 +315,59 @@ def generate_qr_calendar():
         dtstart, dtend = handle_date_time(date, time, timezone, duration)
         
         # Inputs for QR Data
-        data_shape = request.form.get("data_shape")
-        qr_style_data = request.form.get("qr_style_data")
+        data_shape = form_data.get("data_shape")
+        qr_style_data = form_data.get("qr_style_data")
         # Inputs for QR Inner eyes
-        inner_eye_shape = request.form.get("inner_eye_shape")
-        inner_eye_style = request.form.get("qr_style_inner")
+        inner_eye_shape = form_data.get("inner_eye_shape")
+        inner_eye_style = form_data.get("qr_style_inner")
         # Inputs for QR Outer eyes
-        outer_eye_shape = request.form.get("outer_eye_shape")
-        outer_eye_style = request.form.get("qr_style_outer")
+        outer_eye_shape = form_data.get("outer_eye_shape")
+        outer_eye_style = form_data.get("qr_style_outer")
         
         # Handle dynamic inputs
         # DATA
-        data_solid_color = request.form.get("data_solid_color")
-        data_start_color = request.form.get("data_start_color")
-        data_end_color = request.form.get("data_end_color")
+        data_solid_color = form_data.get("data_solid_color")
+        data_start_color = form_data.get("data_start_color")
+        data_end_color = form_data.get("data_end_color")
         data_mask_image_file = request.files.get("data_mask_image")
 
         # INNER
-        inner_solid_color = request.form.get("inner_solid_color")
-        inner_start_color = request.form.get("inner_start_color")
-        inner_end_color = request.form.get("inner_end_color")
+        inner_solid_color = form_data.get("inner_solid_color")
+        inner_start_color = form_data.get("inner_start_color")
+        inner_end_color = form_data.get("inner_end_color")
         inner_mask_image_file = request.files.get("inner_mask_image")
 
         # OUTER
-        outer_solid_color = request.form.get("outer_solid_color")
-        outer_start_color = request.form.get("outer_start_color")
-        outer_end_color = request.form.get("outer_end_color")
+        outer_solid_color = form_data.get("outer_solid_color")
+        outer_start_color = form_data.get("outer_start_color")
+        outer_end_color = form_data.get("outer_end_color")
         outer_mask_image_file = request.files.get("outer_mask_image")
 
         # Handle image upload
-        image_path = image_upload(image_file, app)
+        image_path = image_upload(image_file, upload_folder)
 
         # Upload optional mask image (used for ImageColorMask)
-        data_mask_image_path = image_upload(data_mask_image_file, app)
-        inner_mask_image_path = image_upload(inner_mask_image_file, app)
-        outer_mask_image_path = image_upload(outer_mask_image_file, app)
+        data_mask_image_path = image_upload(data_mask_image_file, upload_folder)
+        inner_mask_image_path = image_upload(inner_mask_image_file, upload_folder)
+        outer_mask_image_path = image_upload(outer_mask_image_file, upload_folder)
 
         # Pass the duration as part of the function call
-        qr_code_url = calendar_handler(event_name, dtstart, dtend, location, description, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
+        full_path = calendar_handler(event_name, dtstart, dtend, location, description, output_folder, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path, data_solid_color, data_start_color, data_end_color, data_mask_image_path, inner_solid_color, inner_start_color, inner_end_color, inner_mask_image_path, outer_solid_color, outer_start_color, outer_end_color, outer_mask_image_path)
+        qr_code_url  = full_path.split("static", 1)[1]
+        qr_code_url = "/static" + qr_code_url.replace("\\", "/")
         filename = os.path.basename(qr_code_url)
 
-        return render_template("index.html", qr_code_url=qr_code_url, filename=filename, uuid=uuid4(), active_form="calendar")
+
+        print(f"Session calendar data: {form_data}")
 
 
+        return render_template("index.html", qr_code_url=qr_code_url, filename=filename, form_data=form_data, uuid=uuid4(), active_form=session.get("active_form", "default"))
 
-
-# @app.route("/static/output/<filename>")
-# def serve_qr_code(filename):
-#     return render_template("index.html", qr_code_url = f"static/output/{filename}", active_form = "link")
-
+#! Route for downloading the generated QR code
 @app.route('/download_qr/<filename>')
 def download_qr(filename):
-    output_dir = app.config["OUTPUT_FOLDER"]
-    file_path = os.path.join(output_dir, filename)
+    output_folder = session["user_output_folder"]
+    file_path = os.path.join(output_folder, filename)
 
     if not os.path.exists(file_path):
         render_template_string("""
@@ -297,6 +412,20 @@ def download_qr(filename):
         </body>
         </html>
         """), 500
+
+@app.route("/clear_output")
+def clear_output():
+    clear_output_folder(app, session["user_output_folder"])
+    active_form = session.get("active_form", "default")  # default if not set
+    return render_template("index.html", active_form=active_form)
+
+@app.route("/clear_session")
+def clear_session():
+    # Clear the session data
+    clear_output_folder(app, session["user_output_folder"])
+    session.clear()
+    
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True)

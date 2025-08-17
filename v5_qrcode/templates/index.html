@@ -40,6 +40,12 @@
                     <a href="{{ url_for('download_qr', filename=filename) }}?v={{ uuid }}">
                         <button type="button">Download QR Code</button>
                     </a>
+                    <form action="/clear_output" method="get">
+                        <button type="submit">Clear Output</button>
+                    </form>
+                    <form action="/clear_session" method="get">
+                        <button type="submit">Clear Session</button>
+                    </form>
                 </div>
             {% endif %}
         </div>
@@ -50,6 +56,9 @@
         var activeForm = "{{ active_form | default('') }}";
     </script>
     <script src="{{ url_for('static', filename='index.js') }}"></script>
+    <script>
+        window.formData = JSON.parse('{{ form_data | tojson | safe }}');
+    </script>
            
 </body>
 </html>

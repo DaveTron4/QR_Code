@@ -4,7 +4,7 @@ from static.handlers.image_configuration_handler import image_configuration
 from static.handlers.qr_styles_handler import get_drawer, get_color_mask
 from static.handlers.qr_styles_handler import style_inner_eyes, style_outer_eyes
 
-def generate_wifi_qr(ssid, password, encryption, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path=None, data_solid_color=None, data_start_color=None, data_end_color=None, data_mask_image_path=None, inner_solid_color=None, inner_start_color=None, inner_end_color=None, inner_mask_image_path=None, outer_solid_color=None, outer_start_color=None, outer_end_color=None, outer_mask_image_path=None):
+def generate_wifi_qr(ssid, password, encryption, output_folder, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path=None, data_solid_color=None, data_start_color=None, data_end_color=None, data_mask_image_path=None, inner_solid_color=None, inner_start_color=None, inner_end_color=None, inner_mask_image_path=None, outer_solid_color=None, outer_start_color=None, outer_end_color=None, outer_mask_image_path=None):
     if encryption == "None":
         encryption = ""
     else:
@@ -42,11 +42,9 @@ def generate_wifi_qr(ssid, password, encryption, data_shape, qr_style_data, inne
     else:
         qr_img = qr.make_image(image_factory=StyledPilImage, module_drawer=module_drawer_data, color_mask=color_mask_data).convert("RGB")
 
-    # THIS IS IMPORTANT : without this an error is shown
-    # Save the QR Code to the 'output' directory
-    output_dir = f"static/output/"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    # Ensure the output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     # Create inner and outer eye masks
     inner_eye_mask = style_inner_eyes(qr_img, box_size=20, quiet_zone=5)
@@ -61,8 +59,8 @@ def generate_wifi_qr(ssid, password, encryption, data_shape, qr_style_data, inne
     # Paste the outer eyes
     final_image.paste(qr_outer_eyes_img, (0, 0), outer_eye_mask)
     
-    qr_code_filename = f"{ssid}_qr.png"
-    path = os.path.join(output_dir, qr_code_filename)
+    qr_code_filename = f"wifi_qr_{uuid.uuid4().hex[:8]}.png"
+    path = os.path.join(output_folder, qr_code_filename)
 
     # Save the QR code image
     final_image.save(path, format='PNG')

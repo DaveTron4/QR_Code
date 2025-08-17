@@ -1,14 +1,11 @@
+import uuid
 import qrcode, os, vobject
 from qrcode.image.styledpil import StyledPilImage
 from static.handlers.image_configuration_handler import image_configuration
 from static.handlers.qr_styles_handler import get_drawer, get_color_mask
 from static.handlers.qr_styles_handler import style_inner_eyes, style_outer_eyes
 
-from qrcode.image.styles.moduledrawers import *
-from qrcode.image.styles.colormasks import *
-
-
-def generate_vcard_qr(name, phone, email, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path = None, data_solid_color=None, data_start_color=None, data_end_color=None, data_mask_image_path=None, inner_solid_color=None, inner_start_color=None, inner_end_color=None, inner_mask_image_path=None, outer_solid_color=None, outer_start_color=None, outer_end_color=None, outer_mask_image_path=None):
+def generate_vcard_qr(name, phone, email, output_folder, data_shape, qr_style_data, inner_eye_shape, inner_eye_style, outer_eye_shape, outer_eye_style, image_path = None, data_solid_color=None, data_start_color=None, data_end_color=None, data_mask_image_path=None, inner_solid_color=None, inner_start_color=None, inner_end_color=None, inner_mask_image_path=None, outer_solid_color=None, outer_start_color=None, outer_end_color=None, outer_mask_image_path=None):
 
     # vCard Version
     vcard = vobject.vCard()
@@ -47,11 +44,6 @@ def generate_vcard_qr(name, phone, email, data_shape, qr_style_data, inner_eye_s
     if image_path:
         temp_image_path = image_configuration(image_path)
 
-    print(f"Data Shape: {data_shape}, Data Style: {qr_style_data}, Inner Eye Shape: {inner_eye_shape}, Inner Eye Style: {inner_eye_style}, Outer Eye Shape: {outer_eye_shape}, Outer Eye Style: {outer_eye_style}")
-    print(f"Data Solid Color: {data_solid_color}, Data Start Color: {data_start_color}, Data End Color: {data_end_color}, Data Mask Image Path: {data_mask_image_path}")
-    print(f"Inner Solid Color: {inner_solid_color}, Inner Start Color: {inner_start_color}, Inner End Color: {inner_end_color}, Inner Mask Image Path: {inner_mask_image_path}")
-    print(f"Outer Solid Color: {outer_solid_color}, Outer Start Color: {outer_start_color}, Outer End Color: {outer_end_color}, Outer Mask Image Path: {outer_mask_image_path}")
-
     # Module drawer and color mask for the data
     module_drawer_data = get_drawer(data_shape)
     color_mask_data = get_color_mask(qr_style_data, data_solid_color, data_start_color, data_end_color, data_mask_image_path)
@@ -79,11 +71,9 @@ def generate_vcard_qr(name, phone, email, data_shape, qr_style_data, inner_eye_s
     else:
         qr_img = qr.make_image(image_factory=StyledPilImage, module_drawer=module_drawer_data, color_mask=color_mask_data).convert("RGB")
 
-    # THIS IS IMPORTANT : without this an error is shown
-    # Save the QR Code to the 'output' directory
-    output_dir = f"static/output"
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)  # Create the directory if it doesn't exist
+    # Ensure the output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
     
     # Create inner and outer eye masks
     inner_eye_mask = style_inner_eyes(qr_img, box_size=15, quiet_zone=5)
@@ -98,8 +88,8 @@ def generate_vcard_qr(name, phone, email, data_shape, qr_style_data, inner_eye_s
     # Paste the outer eyes
     final_image.paste(qr_outer_eyes_img, (0, 0), outer_eye_mask)
 
-    qr_code_filename = f"{name}_qr.png"
-    path = os.path.join(output_dir, qr_code_filename)
+    qr_code_filename = f"vcard_qr_{uuid.uuid4().hex[:8]}.png"
+    path = os.path.join(output_folder, qr_code_filename)
 
     # Save the QR code image
     final_image.save(path, format='PNG')  # You can save the QR code in PNG format since it doesn't need transparency

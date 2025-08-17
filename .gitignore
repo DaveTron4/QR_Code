@@ -1,5 +1,6 @@
 # Ignore venv's
 .venv/
+.env
 qr_code_env/
 uploads/
 output/

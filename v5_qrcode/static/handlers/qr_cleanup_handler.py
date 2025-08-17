@@ -1,9 +1,17 @@
-import glob, os
+import os
+import stat
+import shutil
 
-def clear_output_folder(app):
-    output_dir = app.config["OUTPUT_FOLDER"]
-    for file_path in glob.glob(os.path.join(output_dir, "*")):
+def clear_output_folder(app, user_folder_path):
+    if os.path.exists(user_folder_path):
         try:
-            os.remove(file_path)
+            def remove_readonly(func, path, excinfo):
+                os.chmod(path, stat.S_IWRITE)
+                func(path)
+            
+            shutil.rmtree(user_folder_path, onerror=remove_readonly)
+            app.logger.info(f"Deleted folder: {user_folder_path}")
         except Exception as e:
-            app.logger.warning(f"Could not delete {file_path}: {e}")
+            app.logger.warning(f"Could not delete {user_folder_path}: {e}")
+    else:
+        app.logger.warning(f"Folder {user_folder_path} does not exist.")
