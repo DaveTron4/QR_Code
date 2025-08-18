@@ -259,16 +259,16 @@ function changeForm(type) {
     } else if (type == 'default') {
         formContent.innerHTML = `
             <div>
-                <p>Please select a form type to generate a QR code.</p>
-                <p>Available options: vCard, Link, WiFi, Calendar.</p>
+                <h2>Please select a form type to generate a QR code.</h2>
+                <h3>Available options: vCard, Link, WiFi, Calendar.</h3>
             </div>
         `;
     }
     else {
         formContent.innerHTML = `
             <div>
-                <p>Invalid form type selected.</p>
-                <p>Please select a valid form type.</p>
+                <h2>Invalid form type selected.</h2>
+                <h3>Please select a valid form type.</h3>
             </div>
         `;
     }
