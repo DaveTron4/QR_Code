@@ -256,10 +256,22 @@ function changeForm(type) {
                 ${getRepeatableCode()}
             </form>
         `;
+    } else if (type == 'default') {
+        formContent.innerHTML = `
+            <div>
+                <p>Please select a form type to generate a QR code.</p>
+                <p>Available options: vCard, Link, WiFi, Calendar.</p>
+            </div>
+        `;
     }
-    // else{
-    //     formContent.innerHTML = ''
-    // }
+    else {
+        formContent.innerHTML = `
+            <div>
+                <p>Invalid form type selected.</p>
+                <p>Please select a valid form type.</p>
+            </div>
+        `;
+    }
 
     attachQrStyleListeners();
 }
