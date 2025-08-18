@@ -2,6 +2,7 @@
 
 A web application that allows users to generate QR codes for different types of data including vCards, URLs, Wi-Fi credentials, and more. This project is built with **Flask**, integrates **Python libraries for QR code generation**, and is deployable on platforms like **Render**.
 
+
 ---
 
 ## Table of Contents
@@ -29,32 +30,39 @@ This project is a **QR Code Generator web app** that allows users to easily crea
 
 The app is designed for simplicity, fast generation, and easy deployment on cloud services.
 
+Key technical aspects demonstrated in this project:
+
+- **Backend Development with Flask**: Handling HTTP requests, rendering templates, managing user sessions, and processing form data dynamically.  
+- **Frontend Development**: Custom HTML forms, CSS styling, and responsive design for smooth user experience.  
+- **QR Code Generation**: Using Python libraries to generate QR codes dynamically based on user input.  
+- **Session Management**: Tracking user progress through multi-step forms with Flask sessions.  
+- **File Handling and Image Manipulation**: Generating QR codes with optional logos and custom shapes.  
+- **Deployment Ready**: Configured to run locally or on cloud platforms like Render.  
+- **Error Handling**: Robust template rendering and route handling with proper exception management.  
+
+This project highlights skills in **full-stack development**, **backend Python programming**, **frontend UI/UX design**, **data processing**, and **deployment readiness**.
+
 ---
 
 ## Technologies Used
 
-- **Python 3.13** – Backend programming language  
-- **Flask 3.1.1** – Web framework  
-- **Jinja2** – Templating engine  
-- **Pillow** – Image processing for QR codes  
-- **qrcode** – QR code generation  
-- **vobject** – vCard handling  
-- **Python-dotenv** – Environment variable management  
-- **Gunicorn** – WSGI server for deployment  
-
-Optional development tools:
-
-- **VSCode** – Code editor  
-- **Git** – Version control  
+- **Backend**: Python, Flask  
+- **Frontend**: HTML, CSS, JavaScript  
+- **QR Code Library**: `qrcode` and `Pillow` for image manipulation  
+- **Template Engine**: Jinja2  
+- **Session Management**: Flask sessions  
+- **Deployment**: Render  
 
 ---
 
 ## Features
 
-- Generate QR codes for different types of data  
-- Save QR codes as images  
-- Responsive web interface  
-- Multi-step form for vCard generation  
+- Generate QR codes for multiple data types.
+- Multi-step input forms for better UX.
+- Session-based tracking to resume forms.
+- Option to add logos or custom shapes to QR codes.
+- Fully responsive design for desktop and mobile.
+- Ready for cloud deployment with Render.
 
 ---
 
@@ -64,7 +72,8 @@ Optional development tools:
 
 ```bash
 git clone https://github.com/yourusername/qr-code-generator.git
-cd qr-code-generator
+cd QR_Code/v5_qrcode
+
 ```
 
 2. **Create and activate a virtual environment**
@@ -101,6 +110,8 @@ v5_qrcode/
  ├── app.py               # Main Flask app
  ├── requirements.txt
  ├── static/              # CSS, JS, and images
+      ├── output/
+      └── uploads/
  ├── templates/           # HTML templates
  │    └── index.html
  ├── handlers/            # vCard and other handlers
