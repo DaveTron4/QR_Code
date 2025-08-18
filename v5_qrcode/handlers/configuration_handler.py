@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 def configuration():
     load_dotenv()  # Load variables from .env
 
-    app = Flask(__name__, template_folder="../../templates", static_folder="../../static")
+    app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.secret_key = os.getenv("SECRET_KEY")
 
-    base_dir = os.path.abspath(os.path.join(app.root_path, "../../"))
+    base_dir = os.path.abspath(os.path.join(app.root_path, "../"))
 
     app.config["UPLOAD_FOLDER_BASE"] = os.path.join(base_dir, "static", "uploads")
     app.config["OUTPUT_FOLDER_BASE"] = os.path.join(base_dir, "static", "output")
