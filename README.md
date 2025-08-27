@@ -14,8 +14,6 @@ A web application that allows users to generate QR codes for different types of 
 - [Usage](#usage)  
 - [Images & GIFs](#images--gifs)  
 - [Folder Structure](#folder-structure)  
-- [Contributing](#contributing)  
-- [License](#license)  
 
 ---
 
