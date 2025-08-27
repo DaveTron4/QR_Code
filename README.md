@@ -4,7 +4,7 @@ A web application that allows users to generate QR codes for different types of 
 
 
 
-Visit web app here: [QR Code Web App](QR Code Web App)
+Visit web app here: [QR Code Web App](https://qr-code-yuwx.onrender.com/)
 
 ---
 
